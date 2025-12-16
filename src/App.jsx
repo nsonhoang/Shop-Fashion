@@ -15,6 +15,7 @@ const ProductPage = React.lazy(() => import("./pages/ProductPage"));
 const router = createBrowserRouter([
   {
     path: "/",
+    Suspense: <Loading />,
     element: <MainLayout />,
     // Lưu ý: Loading sẽ được xử lý bên trong MainLayout (xem Bước 2)
     children: [

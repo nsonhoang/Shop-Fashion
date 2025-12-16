@@ -1,7 +1,13 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Ghi đè màu mặc định của Swiper */
+.swiper-button-next,
+.swiper-button-prev {
+  color: #000 !important; /* Màu đen */
+  width: 32px;
+  height: 32px;
+  transition: transform 0.2s;
+}
 
-.link-underline-hover {
-  @apply absolute -bottom-2 left-0 h-0.5 bg-black w-0 group-hover:w-full transition-all duration-300 ease-out;
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  transform: scale(1.1);
 }
