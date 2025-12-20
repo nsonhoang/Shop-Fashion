@@ -87,7 +87,7 @@ function ProductList() {
           <SwiperSlide
             key={product.id}
             onClick={() => {
-              navigation("/men/product/" + product.id);
+              navigation("/product/" + product.id);
             }}
           >
             <ProductItem
