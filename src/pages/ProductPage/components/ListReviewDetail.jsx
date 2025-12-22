@@ -1,12 +1,14 @@
 import ReviewDetailItem from "./ReviewDeatailItem";
 
-function ListReviewDetail() {
+function ListReviewDetail({ reviews }) {
   return (
     <div className="">
-      <ReviewDetailItem />
-      <ReviewDetailItem />
-      <ReviewDetailItem />
-      <ReviewDetailItem />
+      {reviews.map(
+        (review, index) => (
+          console.log(review.user.full_name),
+          (<ReviewDetailItem key={index} review={review} />)
+        )
+      )}
     </div>
   );
 }

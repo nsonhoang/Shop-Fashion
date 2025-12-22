@@ -10,6 +10,8 @@ import ProductDetail from "./components/ProductDetail";
 import ProductItem from "../MenPage/components/ProductItem";
 import RatingOverview from "./components/RatingOverview";
 import ListReviewDetail from "./components/ListReviewDetail";
+import TransparentPricing from "./components/TransparentPricing";
+import CustomAlert from "../../components/customAlert";
 
 export const product = {
   // --- 1. Thông tin cơ bản (Bảng PRODUCTS) ---
@@ -72,7 +74,7 @@ export const product = {
       rating: 5, // 5 sao
       comment: "Áo đẹp, vải dày dặn đúng như mô tả. Giao hàng siêu nhanh!",
       created_at: "2024-12-10T08:30:00Z",
-      variant_purchased: "Black / XL", // (Optional) Mua loại nào review loại đó
+      // variant_purchased: "Black / XL", // (Optional) Mua loại nào review loại đó
     },
     {
       review_id: "rv_02",
@@ -85,7 +87,7 @@ export const product = {
       comment:
         "Form áo hơi rộng so với mình nghĩ, nhưng chất vải thì ok. Nên lùi 1 size nha mọi người.",
       created_at: "2024-12-12T14:15:00Z",
-      variant_purchased: "White / M",
+      // variant_purchased: "White / M",
     },
     {
       review_id: "rv_03",
@@ -97,7 +99,7 @@ export const product = {
       rating: 5,
       comment: "Đóng gói cẩn thận, shop tư vấn nhiệt tình. Sẽ ủng hộ lần sau.",
       created_at: "2024-12-15T09:00:00Z",
-      variant_purchased: "Black / S",
+      // variant_purchased: "Black / S",
     },
   ],
 };
@@ -145,6 +147,8 @@ const ProductPage = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectColor, setSelectColor] = useState<string | null>("chưa chọn");
   const [selectSize, setSelectSize] = useState<string | null>(null);
+  const [showAlertError, setShowAlertError] = useState(false);
+  const [showAlertSuccess, setShowAlertSuccess] = useState(false);
 
   const colorOptions = Array.from(
     new Set(product.variants.map((variant) => variant.color))
@@ -154,8 +158,58 @@ const ProductPage = () => {
     new Set(product.variants.map((variant) => variant.size))
   );
 
+  const handleAddToCart = () => {
+    //hàm sau sau sẽ async call api thêm vào giỏ hàng
+
+    if (!selectColor || !selectSize) {
+      setShowAlertError(true);
+      setTimeout(() => {
+        setShowAlertError(false);
+      }, 3000);
+      return;
+    }
+    //hiện alert thành công
+    //thêm vào giỏ hàng
+
+    setShowAlertSuccess(true);
+    setTimeout(() => {
+      setShowAlertSuccess(false);
+    }, 3000);
+    const cartItem = {
+      productId: id,
+      color: selectColor,
+      size: selectSize,
+    };
+
+    console.log("Thêm vào giỏ hàng:", cartItem);
+  };
+
   return (
-    <div className="product-page flex flex-col justify-center items-center mt-20">
+    <div className="product-page flex flex-col justify-center items-center mt-20 relative">
+      {/* --- PHẦN HIỂN THỊ ALERT --- */}
+      {showAlertError && (
+        <div className="fixed top-20 right-5 z-50 w-80 animate-in slide-in-from-right fade-in duration-300">
+          <CustomAlert
+            type="error" // Màu đỏ cảnh báo
+            title="Thiếu thông tin"
+            onClose={() => setShowAlertError(false)} // Nút tắt
+          >
+            Vui lòng chọn <strong>Màu sắc</strong> và{" "}
+            <strong>Kích thước</strong> trước khi thêm vào giỏ.
+          </CustomAlert>
+        </div>
+      )}
+      {showAlertSuccess && (
+        <div className="fixed top-20 right-5 z-50 w-80 animate-in slide-in-from-right fade-in duration-300">
+          <CustomAlert
+            type="success" // Màu xanh thành công
+            title="Thêm vào giỏ hàng thành công"
+            onClose={() => setShowAlertSuccess(false)} // Nút tắt
+          >
+            Sản phẩm đã được thêm vào giỏ hàng.
+          </CustomAlert>
+        </div>
+      )}
       {/*hình ảnh và mô tả sản phẩm  */}
       <div className="max-w-7xl w-full grid grid-cols-2 gap-4">
         <div className="list-image flex flex-col gap-2">
@@ -245,7 +299,10 @@ const ProductPage = () => {
           </div>
           {/* nút thêm vào giỏ hàng */}
           <div className="mt-10">
-            <button className="bg-black text-xl text-white py-2 px-4 font-thin w-[70%]">
+            <button
+              className="bg-black text-xl text-white py-2 px-4 font-thin w-[70%]"
+              onClick={handleAddToCart}
+            >
               Thêm vào giỏ hàng
             </button>
           </div>
@@ -289,9 +346,13 @@ const ProductPage = () => {
 
           {/* chi tiết đánh giá */}
           <div className="">
-            <ListReviewDetail />
+            <ListReviewDetail reviews={product.reviews} />
           </div>
         </div>
+      </div>
+      {/*chi phí vận chuyển */}
+      <div className="mt-10 w-full">
+        <TransparentPricing />
       </div>
     </div>
   );
