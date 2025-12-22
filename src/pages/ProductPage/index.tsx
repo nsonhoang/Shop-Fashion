@@ -4,13 +4,19 @@ import { useParams } from "react-router-dom";
 
 import SelectSize from "./components/SelectSize";
 import SelectColor from "./components/selectColor";
+import { formatMoney } from "../../utils/formatMoney";
+import ServiceHighlights from "./components/ServiceHighlights";
+import ProductDetail from "./components/ProductDetail";
+import ProductItem from "../MenPage/components/ProductItem";
+import RatingOverview from "./components/RatingOverview";
+import ListReviewDetail from "./components/ListReviewDetail";
 
 export const product = {
   // --- 1. Thông tin cơ bản (Bảng PRODUCTS) ---
   id: "prod_001",
   name: "Áo Thun Oversize Streetwear Premium",
   description:
-    "Chất liệu cotton 100% định lượng 250gsm dày dặn, không xù lông. Form áo rộng rãi thoáng mát, phù hợp cho cả nam và nữ.",
+    "Áo thun oversize streetwear premium được làm từ chất liệu cotton 100% cao cấp, mang lại cảm giác mềm mại và thoáng mát khi mặc. Thiết kế oversize giúp bạn tự do vận động và tạo phong cách thời trang cá tính. Áo có nhiều màu sắc đa dạng, dễ dàng phối đồ cho mọi dịp. Đường may chắc chắn, tỉ mỉ từng chi tiết, đảm bảo độ bền lâu dài. Đây là lựa chọn hoàn hảo cho những ai yêu thích phong cách streetwear năng động và hiện đại, đồng thời quan tâm đến chất lượng sản phẩm.",
   base_price: 350000, // 350k
   avg_rating: 4.8, // Tính trung bình từ bảng reviews
   total_reviews: 125, // Tổng số review
@@ -95,6 +101,44 @@ export const product = {
     },
   ],
 };
+export const relatedProducts = [
+  {
+    id: "prod_002",
+    name: "Quần Jeans Rách Gối Phong Cách Hàn Quốc",
+    // Ảnh quần Jeans xanh rách gối, chụp cận chất vải
+    image:
+      "https://bizweb.dktcdn.net/thumb/large/100/399/392/products/ao-khoac-jean-nam-tinh-chinh-hang-hiddle-8.jpg?v=1741754139623",
+    price: 450000,
+    color: "Blue",
+  },
+  {
+    id: "prod_003",
+    name: "Áo Sơ Mi Tay Ngắn Casual",
+    // Ảnh áo sơ mi xanh nhạt, phong cách mùa hè
+    image:
+      "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&q=80&w=600",
+    price: 300000,
+    color: "Light Blue",
+  },
+  {
+    id: "prod_004",
+    name: "Giày Thể Thao Năng Động Unisex",
+    // Ảnh giày Sneaker trắng/đen (Nike style) trên nền đẹp
+    image:
+      "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&q=80&w=600",
+    price: 600000,
+    color: "White/Black",
+  },
+  {
+    id: "prod_005",
+    name: "Mũ Lưỡi Trai Thời Trang Phong Cách Đường Phố",
+    // Ảnh mũ lưỡi trai đen đơn giản, ngầu
+    image:
+      "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&q=80&w=600",
+    price: 150000,
+    color: "Black",
+  },
+];
 
 const ProductPage = () => {
   const { id } = useParams();
@@ -111,7 +155,8 @@ const ProductPage = () => {
   );
 
   return (
-    <div className="product-page flex justify-center items-center mt-20">
+    <div className="product-page flex flex-col justify-center items-center mt-20">
+      {/*hình ảnh và mô tả sản phẩm  */}
       <div className="max-w-7xl w-full grid grid-cols-2 gap-4">
         <div className="list-image flex flex-col gap-2">
           {/* hình ảnh */}
@@ -155,7 +200,7 @@ const ProductPage = () => {
             <h1 className="text-2xl font-semibold w-70">{product.name}</h1>
             {/* giá */}
             <span className="text-xl font-semibold text-gray-800">
-              123.000đ
+              {formatMoney(product.base_price)}
             </span>
           </div>
           {/* rating */}
@@ -206,6 +251,46 @@ const ProductPage = () => {
           </div>
           {/* kẻ ngang */}
           <div className="border-t border-gray-200 mt-10" />
+          <div className="">
+            <ServiceHighlights />
+          </div>
+          {/* kẻ ngang */}
+          <div className="border-t border-gray-200 " />
+          {/* mô tả sản phẩm */}
+          <div className="mt-5">
+            <ProductDetail product={product} />
+          </div>
+        </div>
+      </div>
+      {/* đề xuất sản phẩm cùng loại */}
+      <div className="w-full mt-20">
+        <div className="text-lg font-semibold">Đề xuất sản phẩm cùng loại</div>
+        <div className="mt-4 grid grid-cols-4 gap-4">
+          {relatedProducts.map((item) => (
+            <ProductItem
+              key={item.id}
+              color={item.color}
+              image={item.image}
+              name={item.name}
+              price={item.price}
+            />
+          ))}
+        </div>
+      </div>
+      {/* đánh giá */}
+      <div className="mt-10 w-full">
+        <div className="text-2xl font-semibold text-center">Đánh giá</div>
+        {/* Sơ lực */}
+        <div className="">
+          <RatingOverview
+            agvRating={product.avg_rating}
+            reviews={product.reviews}
+          />
+
+          {/* chi tiết đánh giá */}
+          <div className="">
+            <ListReviewDetail />
+          </div>
         </div>
       </div>
     </div>
