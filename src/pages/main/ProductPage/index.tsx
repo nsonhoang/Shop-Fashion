@@ -4,14 +4,14 @@ import { useParams } from "react-router-dom";
 
 import SelectSize from "./components/SelectSize";
 import SelectColor from "./components/selectColor";
-import { formatMoney } from "../../utils/formatMoney";
+import { formatMoney } from "../../../utils/formatMoney";
 import ServiceHighlights from "./components/ServiceHighlights";
 import ProductDetail from "./components/ProductDetail";
 import ProductItem from "../MenPage/components/ProductItem";
 import RatingOverview from "./components/RatingOverview";
 import ListReviewDetail from "./components/ListReviewDetail";
 import TransparentPricing from "./components/TransparentPricing";
-import CustomAlert from "../../components/customAlert";
+import CustomAlert from "../../../components/customAlert";
 
 export const product = {
   // --- 1. Thông tin cơ bản (Bảng PRODUCTS) ---

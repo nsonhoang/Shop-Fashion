@@ -1,5 +1,5 @@
 import { Star } from "lucide-react";
-import { formatDate } from "../../../utils/formatDate";
+import { formatDate } from "../../../../utils/formatDate";
 
 function ReviewDetailItem({ review }) {
   return (
