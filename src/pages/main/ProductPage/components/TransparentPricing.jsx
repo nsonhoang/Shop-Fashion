@@ -1,6 +1,6 @@
 import React from "react";
 import { Layers, CircleDot, Scissors, Receipt, Plane } from "lucide-react";
-import { formatMoney } from "../../../utils/formatMoney";
+import { formatMoney } from "../../../../utils/formatMoney";
 
 const TransparentPricing = () => {
   // Dữ liệu chi phí (Đã quy đổi sang VNĐ tượng trưng)
