@@ -7,34 +7,34 @@ import { AdminLayout } from "./layouts/admin/index.jsx";
 
 // 2. Định nghĩa Lazy Import (Code splitting)
 // Cách này hoạt động tốt với "export default"
-const MenPage = React.lazy(() => import("./pages/main/MenPage/index.jsx"));
-const WomenPage = React.lazy(() => import("./pages/main/WomenPage/index.jsx"));
-const AboutPage = React.lazy(() => import("./pages/main/About/index.jsx"));
-const StoryPage = React.lazy(() => import("./pages/main/Story/index.jsx"));
+const MenPage = React.lazy(() => import("@/pages/main/MenPage/index.jsx"));
+const WomenPage = React.lazy(() => import("@/pages/main/WomenPage/index.jsx"));
+const AboutPage = React.lazy(() => import("@/pages/main/About/index.jsx"));
+const StoryPage = React.lazy(() => import("@/pages/main/Story/index.jsx"));
 const ProductPage = React.lazy(() =>
-  import("./pages/main/ProductPage/index.js")
+  import("@/pages/main/ProductPage/index.jsx")
 );
-const Dashboard = React.lazy(() => import("./pages/admin/Dashboard/index.jsx"));
+const Dashboard = React.lazy(() => import("@/pages/admin/Dashboard/index.jsx"));
 const ProductAdminPage = React.lazy(() =>
-  import("./pages/admin/Product/index.jsx")
+  import("@/pages/admin/Product/index.jsx")
 );
 const CategoriesAdminPage = React.lazy(() =>
-  import("./pages/admin/Categories/index.jsx")
+  import("@/pages/admin/Categories/index.jsx")
 );
 const CustomersAdminPage = React.lazy(() =>
-  import("./pages/admin/Customers/index.jsx")
+  import("@/pages/admin/Customers/index.jsx")
 );
 const InventoryAdminPage = React.lazy(() =>
-  import("./pages/admin/Inventory/index.jsx")
+  import("@/pages/admin/Inventory/index.jsx")
 );
 const AnalyticsAdminPage = React.lazy(() =>
-  import("./pages/admin/Analytics/index.jsx")
+  import("@/pages/admin/Analytics/index.jsx")
 );
 const SettingsAdminPage = React.lazy(() =>
-  import("./pages/admin/Settings/index.jsx")
+  import("@/pages/admin/Settings/index.jsx")
 );
 const OrdersAdminPage = React.lazy(() =>
-  import("./pages/admin/Orders/index.jsx")
+  import("@/pages/admin/Orders/index.jsx")
 );
 
 const router = createBrowserRouter([

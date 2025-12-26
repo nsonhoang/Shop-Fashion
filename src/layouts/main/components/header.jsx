@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Search, ShoppingCart, User, Menu } from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
+import CartSheet from "@/components/CartSheet";
 
 function Header() {
   const [user, setUser] = useState(true);
@@ -134,9 +135,10 @@ function Header() {
             <button className="hidden md:block hover:bg-gray-100 p-2 rounded-full transition-colors">
               <User className="h-5 w-5" />
             </button>
-            <button className="hover:bg-gray-100 p-2 rounded-full transition-colors">
+            {/* <button className="hover:bg-gray-100 p-2 rounded-full transition-colors">
               <ShoppingCart className="h-5 w-5" />
-            </button>
+            </button> */}
+            <CartSheet />
           </div>
         ) : (
           <div className="flex-1 flex justify-end items-center ">

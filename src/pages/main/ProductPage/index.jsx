@@ -12,6 +12,7 @@ import RatingOverview from "./components/RatingOverview";
 import ListReviewDetail from "./components/ListReviewDetail";
 import TransparentPricing from "./components/TransparentPricing";
 import CustomAlert from "../../../components/customAlert";
+import { Button } from "@/components/ui/button";
 
 export const product = {
   // --- 1. Thông tin cơ bản (Bảng PRODUCTS) ---
@@ -145,8 +146,8 @@ export const relatedProducts = [
 const ProductPage = () => {
   const { id } = useParams();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [selectColor, setSelectColor] = useState<string | null>("chưa chọn");
-  const [selectSize, setSelectSize] = useState<string | null>(null);
+  const [selectColor, setSelectColor] = useState(null > "chưa chọn");
+  const [selectSize, setSelectSize] = useState(null);
   const [showAlertError, setShowAlertError] = useState(false);
   const [showAlertSuccess, setShowAlertSuccess] = useState(false);
 
@@ -347,6 +348,13 @@ const ProductPage = () => {
           {/* chi tiết đánh giá */}
           <div className="">
             <ListReviewDetail reviews={product.reviews} />
+          </div>
+          {/* phải đăng nhâp mới hiện nút thêm đánh giá và xem thêm */}
+          <div className="flex flex-col items-center gap-2 mt-2 ">
+            <Button className="w-[300px] bg-white text-gray-900 border border-gray-300 hover:bg-gray-100">
+              Viết đánh giá
+            </Button>
+            <Button className="w-[300px]">Xem thêm đánh giá</Button>
           </div>
         </div>
       </div>
