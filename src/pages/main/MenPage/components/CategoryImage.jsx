@@ -2,12 +2,12 @@ import CategoryImageItem from "./CategoryImageItem";
 
 // 1. IMPORT ẢNH (Để bundler xử lý được đường dẫn)
 // Hoặc bạn có thể vứt ảnh vào thư mục public và dùng đường dẫn "/assets/..."
-import img1 from "../../../assets/shopbyCategory1.png";
-import img2 from "../../../assets/shopbyCategory2.png";
-import img3 from "../../../assets/shopbyCategory3.png";
-import img4 from "../../../assets/shopbyCategory4.png";
-import img5 from "../../../assets/shopbyCategory5.png";
-import img6 from "../../../assets/shopbyCategory6.png";
+import img1 from "../../../../assets/shopbyCategory1.png";
+import img2 from "../../../../assets/shopbyCategory2.png";
+import img3 from "../../../../assets/shopbyCategory3.png";
+import img4 from "../../../../assets/shopbyCategory4.png";
+import img5 from "../../../../assets/shopbyCategory5.png";
+import img6 from "../../../../assets/shopbyCategory6.png";
 
 const category = [
   {

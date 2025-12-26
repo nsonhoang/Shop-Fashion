@@ -1,6 +1,6 @@
 import ProductItem from "./ProductItem";
 import { Swiper, SwiperSlide } from "swiper/react";
-import "../../../styles/styles.css";
+import "../../../../styles/styles.css";
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
