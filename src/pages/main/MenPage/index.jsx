@@ -1,6 +1,6 @@
 import React from "react";
 import CategoryProduct from "./components/categoryProduct";
-import bannerImg from "../../assets/banner.png";
+import bannerImg from "../../../assets/banner.png";
 import CategoryImage from "./components/CategoryImage";
 import ProductList from "./components/ProductList";
 import { Link } from "react-router-dom";
