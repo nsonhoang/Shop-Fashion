@@ -1,7 +1,6 @@
 import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
 
 /**
  * @param {number} value - Số lượng hiện tại
