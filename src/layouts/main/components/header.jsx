@@ -8,8 +8,9 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import CartSheet from "@/components/CartSheet";
+import DialogLogin from "@/components/DialogLogin";
 
 // Component Link (Dùng chung cho cả Desktop và Mobile)
 const NavItem = ({ to, label, onClick }) => (
@@ -37,7 +38,7 @@ const NavItem = ({ to, label, onClick }) => (
 );
 
 function Header() {
-  const [user, setUser] = useState(false); // cái này để gắn tạp khi user sẽ đc lấy ở context kiểm tra
+  const [user, setUser] = useState(true); // cái này để gắn tạp khi user sẽ đc lấy ở context kiểm tra
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isDropMenuOpen, setIsDropMenuOpen] = useState(false);
 
@@ -89,7 +90,7 @@ function Header() {
           </div>
 
           {/* Dùng absolute center trên mobile để đảm bảo logo luôn ở giữa bất kể 2 bên lệch nhau */}
-          <div className="flex-shrink-0 absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0">
+          <div className="shrink-0 absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0">
             <Link to="/">
               <h1 className="text-xl md:text-2xl font-bold tracking-[0.2em] uppercase cursor-pointer">
                 EVERLANE
@@ -168,15 +169,11 @@ function Header() {
                 <CartSheet />
               </>
             ) : (
-              <Link to="/login">
-                <button className="bg-gray-900 text-white text-sm font-medium px-5 py-2 rounded-md hover:bg-gray-800 transition-colors">
-                  Log In
-                </button>
-              </Link>
+              <DialogLogin />
             )}
           </div>
 
-          {/* --- SEARCH BAR DROPDOWN (GIỮ NGUYÊN) --- */}
+          {/* --- SEARCH BAR DROPDOWN  --- */}
           <div
             className={`
               absolute left-0 w-full bg-white shadow-md px-4 flex items-center h-20 z-40
