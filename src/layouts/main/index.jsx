@@ -6,7 +6,7 @@ import Loading from "@/components/loading";
 
 function MainLayout() {
   return (
-    <div className="main-layout w-full min-h-screen flex flex-col">
+    <div className="main-layout max-w-7xl mx-auto  min-h-screen flex flex-col">
       <Header />
       <main className="main-content  ">
         <Suspense fallback={<Loading />}>
