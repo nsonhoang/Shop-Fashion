@@ -28,20 +28,20 @@ import {
 } from "@/components/ui/select";
 
 const mockOrders = [
-  { id: "ORD-001", customer: "John Doe", email: "john@example.com", total: 159.99, items: 3, status: "completed", date: "2024-01-15" },
-  { id: "ORD-002", customer: "Jane Smith", email: "jane@example.com", total: 249.99, items: 2, status: "processing", date: "2024-01-14" },
-  { id: "ORD-003", customer: "Mike Johnson", email: "mike@example.com", total: 89.99, items: 1, status: "shipped", date: "2024-01-14" },
-  { id: "ORD-004", customer: "Sarah Williams", email: "sarah@example.com", total: 329.99, items: 4, status: "pending", date: "2024-01-13" },
-  { id: "ORD-005", customer: "Tom Brown", email: "tom@example.com", total: 199.99, items: 2, status: "cancelled", date: "2024-01-12" },
-  { id: "ORD-006", customer: "Emily Davis", email: "emily@example.com", total: 449.99, items: 5, status: "completed", date: "2024-01-11" },
+  { id: "ORD-001", customer: "John Doe", email: "john@example.com", total: 159.99, items: 3, status: "hoàn thành", date: "2024-01-15" },
+  { id: "ORD-002", customer: "Jane Smith", email: "jane@example.com", total: 249.99, items: 2, status: "đang xử lý", date: "2024-01-14" },
+  { id: "ORD-003", customer: "Mike Johnson", email: "mike@example.com", total: 89.99, items: 1, status: "đã giao hàng", date: "2024-01-14" },
+  { id: "ORD-004", customer: "Sarah Williams", email: "sarah@example.com", total: 329.99, items: 4, status: "đang chờ", date: "2024-01-13" },
+  { id: "ORD-005", customer: "Tom Brown", email: "tom@example.com", total: 199.99, items: 2, status: "đã hủy", date: "2024-01-12" },
+  { id: "ORD-006", customer: "Emily Davis", email: "emily@example.com", total: 449.99, items: 5, status: "hoàn thành", date: "2024-01-11" },
 ];
 
 const statusColors = {
-  completed: "bg-green-100 text-green-800",
-  processing: "bg-blue-100 text-blue-800",
-  shipped: "bg-purple-100 text-purple-800",
-  pending: "bg-yellow-100 text-yellow-800",
-  cancelled: "bg-red-100 text-red-800",
+  "hoàn thành": "bg-green-100 text-green-800",
+  "đang xử lý": "bg-blue-100 text-blue-800",
+  "đã giao hàng": "bg-purple-100 text-purple-800",
+  "đang chờ": "bg-yellow-100 text-yellow-800",
+  "đã hủy": "bg-red-100 text-red-800",
 };
 
 
@@ -58,13 +58,13 @@ const OrdersAdminPage = () => {
   });
   return (
     <div>
-      <AdminHeader title="Orders" />
+      <AdminHeader title="Đơn hàng" />
       <div className="p-6 space-y-6">
         <div className="flex items-center gap-4">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search orders..."
+              placeholder="Tìm kiếm đơn hàng..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
@@ -75,12 +75,12 @@ const OrdersAdminPage = () => {
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="processing">Processing</SelectItem>
-              <SelectItem value="shipped">Shipped</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
+              <SelectItem value="all">Tất cả trạng thái</SelectItem>
+              <SelectItem value="pending">Đang chờ</SelectItem>
+              <SelectItem value="processing">Đang xử lý</SelectItem>
+              <SelectItem value="shipped">Đã giao hàng</SelectItem>
+              <SelectItem value="completed">Hoàn thành</SelectItem>
+              <SelectItem value="cancelled">Đã hủy</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -91,12 +91,12 @@ const OrdersAdminPage = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Order ID</TableHead>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>Items</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead className="w-[70px]">Actions</TableHead>
+                  <TableHead>Khách hàng</TableHead>
+                  <TableHead>Sản phẩm</TableHead>
+                  <TableHead>Tổng cộng</TableHead>
+                  <TableHead>Trạng thái</TableHead>
+                  <TableHead>Ngày</TableHead>
+                  <TableHead className="w-[70px]">Hành động</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -126,11 +126,11 @@ const OrdersAdminPage = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem>
-                            <Eye className="h-4 w-4 mr-2" /> View Details
+                            <Eye className="h-4 w-4 mr-2" /> Xem chi tiết
                           </DropdownMenuItem>
-                          <DropdownMenuItem>Mark as Shipped</DropdownMenuItem>
-                          <DropdownMenuItem>Mark as Completed</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">Cancel Order</DropdownMenuItem>
+                          <DropdownMenuItem>Đã giao hàng</DropdownMenuItem>
+                          <DropdownMenuItem>Hoàn thành</DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive">Hủy đơn hàng</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

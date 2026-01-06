@@ -47,13 +47,13 @@ const CategoriesAdminPage = () => {
 
    return (
     <div>
-      <AdminHeader title="Categories" />
+      <AdminHeader title="Danh mục" />
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between gap-4">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search categories..."
+              placeholder="Tìm kiếm danh mục..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
@@ -61,7 +61,7 @@ const CategoriesAdminPage = () => {
           </div>
           <Button onClick={() => setOpenAdd(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Category
+            Thêm danh mục
           </Button>
         </div>
 
@@ -70,11 +70,11 @@ const CategoriesAdminPage = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
+                  <TableHead>Tên</TableHead>
                   <TableHead>Slug</TableHead>
-                  <TableHead>Products</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead className="w-[70px]">Actions</TableHead>
+                  <TableHead>Sản phẩm</TableHead>
+                  <TableHead>Mô tả</TableHead>
+                  <TableHead className="w-[70px]">Hành động</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -93,10 +93,10 @@ const CategoriesAdminPage = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem>
-                            <Edit className="h-4 w-4 mr-2" /> Edit
+                            <Edit className="h-4 w-4 mr-2" /> Sửa
                           </DropdownMenuItem>
                           <DropdownMenuItem className="text-destructive">
-                            <Trash2 className="h-4 w-4 mr-2" /> Delete
+                            <Trash2 className="h-4 w-4 mr-2" /> Xóa
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
