@@ -103,7 +103,7 @@ export default function StoryPage() {
                 </p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <a
-                    href="/shop"
+                    href="/"
                     className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white shadow hover:opacity-95 transition"
                   >
                     Mua sắm bộ sưu tập
