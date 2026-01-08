@@ -1,223 +1,108 @@
-import React, { useState, useEffect } from "react";
-import ProductCard from "./ProductCard";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "@/styles/styles.css";
+// Import Swiper styles
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
-const ProductList = ({ 
-  category = 'women',
-  featured = false,
-  limit = 8,
-  showFilter = false,
-  onProductClick
-}) => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  
-  const sampleProducts = [
-    {
-      id: 1,
-      name: "Đầm suông hoa nhí",
-      price: 450000,
-      originalPrice: 550000,
-      image: "/products/dress1.jpg",
-      category: "dress",
-      description: "Đầm suông dáng dài, chất liệu vải mềm mại",
-      rating: 4.5,
-      reviewCount: 28,
-      isNew: true,
-      isSale: true,
-      salePercentage: 18,
-      colors: ["Pink", "White", "Beige"],
-      sizes: ["S", "M", "L"]
-    },
-    {
-      id: 2,
-      name: "Áo thun cổ tròn",
-      price: 250000,
-      image: "/products/top1.jpg",
-      category: "top",
-      rating: 4.2,
-      reviewCount: 15,
-      colors: ["White", "Black", "Gray"],
-      sizes: ["S", "M", "L", "XL"]
-    },
-    {
-      id: 3,
-      name: "Quần jeans ống rộng",
-      price: 380000,
-      originalPrice: 450000,
-      image: "/products/jeans1.jpg",
-      category: "pants",
-      rating: 4.7,
-      reviewCount: 42,
-      isSale: true,
-      salePercentage: 15,
-      colors: ["Blue", "Black"],
-      sizes: ["S", "M", "L"]
-    },
-    {
-      id: 4,
-      name: "Áo khoác denim",
-      price: 520000,
-      image: "/products/jacket1.jpg",
-      category: "jacket",
-      rating: 4.8,
-      reviewCount: 31,
-      isNew: true,
-      colors: ["Blue", "Black"],
-      sizes: ["S", "M", "L"]
-    },
-    {
-      id: 5,
-      name: "Váy công sở",
-      price: 490000,
-      image: "/products/dress2.jpg",
-      category: "dress",
-      rating: 4.3,
-      reviewCount: 19,
-      colors: ["Black", "Navy", "Gray"],
-      sizes: ["S", "M"]
-    },
-    {
-      id: 6,
-      name: "Áo len cổ lọ",
-      price: 320000,
-      image: "/products/sweater1.jpg",
-      category: "sweater",
-      rating: 4.6,
-      reviewCount: 23,
-      isNew: true,
-      colors: ["Beige", "Brown", "Cream"],
-      sizes: ["S", "M", "L"]
-    },
-    {
-      id: 7,
-      name: "Quần short kaki",
-      price: 280000,
-      image: "/products/shorts1.jpg",
-      category: "shorts",
-      rating: 4.0,
-      reviewCount: 12,
-      colors: ["Beige", "Green", "Blue"],
-      sizes: ["S", "M", "L"]
-    },
-    {
-      id: 8,
-      name: "Set đồ bộ",
-      price: 650000,
-      originalPrice: 750000,
-      image: "/products/set1.jpg",
-      category: "set",
-      rating: 4.9,
-      reviewCount: 37,
-      isSale: true,
-      salePercentage: 13,
-      colors: ["Pink", "White"],
-      sizes: ["S", "M"]
-    }
-  ];
+// Import các modules cần dùng
+import { Navigation, Pagination, Autoplay } from "swiper/modules";
+import { useNavigate } from "react-router-dom";
+import ProductItem from "@/components/ProductItem";
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        
-        let filteredProducts = category !== 'all' 
-          ? sampleProducts.filter(p => p.category.includes(category === 'women' ? 'dress' : ''))
-          : sampleProducts;
-        
-        if (featured) {
-          filteredProducts = filteredProducts.filter(p => p.isNew || p.isSale);
-        }
-        
-        filteredProducts = filteredProducts.slice(0, limit);
-        
-        setProducts(filteredProducts);
-        setError(null);
-      } catch (err) {
-        setError("Không thể tải sản phẩm");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+const products = [
+  {
+    id: 1,
+    name: "Sản phẩm 1",
+    price: 100000,
+    color: "Màu đen",
+    image:
+      "https://bizweb.dktcdn.net/thumb/large/100/399/392/products/ao-khoac-jean-nam-tinh-chinh-hang-hiddle-8.jpg?v=1741754139623",
+  },
+  {
+    id: 2,
+    name: "Sản phẩm 2",
+    price: 200000,
+    color: "Màu đỏ",
+    image: "https://thoitrangbigsize.vn/wp-content/uploads/2024/07/1-2.jpg",
+  },
+  {
+    id: 3,
+    name: "Sản phẩm 3",
+    price: 300000,
+    color: "Màu xanh",
+    image:
+      "https://cdn.hstatic.net/products/1000026602/csh_0263_1ecf6e66afa5419faa2d614ed37957af_master.jpg",
+  },
 
-    fetchProducts();
-  }, [category, featured, limit]);
+  {
+    id: 4,
+    name: "Sản phẩm 4",
+    price: 400000,
+    color: "Màu vàng",
+    image: "https://thoitrangbigsize.vn/wp-content/uploads/2024/07/6-2.jpg",
+  },
+  {
+    id: 5,
+    name: "Sản phẩm 5",
+    price: 500000,
+    color: "Màu trắng",
+    image: "https://vulcano.vn/media/wysiwyg/home-categories/B_Qu_n_o.jpg",
+  },
+  {
+    id: 6,
+    name: "Sản phẩm 6",
+    price: 600000,
+    color: "Màu tím",
+    image:
+      "https://cdn.hstatic.net/products/200000690725/_o_web__1__80f17c47b88741a5934c9cf35d6b35e7_master.png",
+  },
+];
 
-  const handleProductClick = (productId) => {
-    if (onProductClick) {
-      onProductClick(productId);
-    }
-    console.log(`Product clicked: ${productId}`);
-  };
-
-  if (loading) {
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {Array.from({ length: limit }).map((_, index) => (
-          <div key={index} className="animate-pulse">
-            <div className="bg-gray-200 h-64 rounded-lg mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-red-500 mb-4">{error}</p>
-        <button 
-          onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-pink-500 text-white rounded hover:bg-pink-600"
-        >
-          Thử lại
-        </button>
-      </div>
-    );
-  }
-
-  if (products.length === 0) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-gray-500">Không tìm thấy sản phẩm nào</p>
-      </div>
-    );
-  }
+function ProductList() {
+  const navigation = useNavigate();
 
   return (
-    <div>
-      {showFilter && (
-        <div className="mb-6 flex flex-wrap gap-4">
-          <select className="border rounded px-3 py-2">
-            <option>Sắp xếp theo</option>
-            <option>Giá: Thấp đến Cao</option>
-            <option>Giá: Cao đến Thấp</option>
-            <option>Mới nhất</option>
-            <option>Bán chạy</option>
-          </select>
-          <select className="border rounded px-3 py-2">
-            <option>Danh mục</option>
-            <option>Đầm/Váy</option>
-            <option>Áo</option>
-            <option>Quần</option>
-          </select>
-        </div>
-      )}
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="w-full max-w-7xl mx-auto px-4">
+      <Swiper
+        modules={[Navigation, Pagination]}
+        spaceBetween={20} // Khoảng cách giữa các slide
+        slidesPerView={1} // Số slide hiển thị cùng lúc (trên mobile)
+        navigation // Mũi tên trái phải
+        loop={true} // Lặp vô hạn
+        threshold={10} // Kết hợp cái này
+        breakpoints={{
+          640: {
+            slidesPerView: 2,
+          },
+          768: {
+            slidesPerView: 3,
+          },
+          1024: {
+            slidesPerView: 4, // PC hiện 4
+          },
+        }}
+        className="!pb-12 !px-12 h-auto"
+      >
         {products.map((product) => (
-          <ProductCard 
+          <SwiperSlide
             key={product.id}
-            product={product}
-            onClick={() => handleProductClick(product.id)}
-          />
+            onClick={() => {
+              navigation("/product/" + product.id);
+            }}
+          >
+            <ProductItem
+              image={product.image}
+              name={product.name}
+              price={product.price}
+              color={product.color}
+              onClick={() => console.log("Product clicked:", product.id)}
+            />
+          </SwiperSlide>
         ))}
-      </div>
+      </Swiper>
     </div>
   );
-};
+}
 
 export default ProductList;

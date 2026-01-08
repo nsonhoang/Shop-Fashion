@@ -1,4 +1,4 @@
-import ProductItem from "./ProductItem";
+import ProductItem from "../../../../components/ProductItem";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "@/styles/styles.css";
 // Import Swiper styles
@@ -61,6 +61,7 @@ const products = [
 
 function ProductList() {
   const navigation = useNavigate();
+
   return (
     <div className="w-full max-w-7xl mx-auto px-4">
       <Swiper

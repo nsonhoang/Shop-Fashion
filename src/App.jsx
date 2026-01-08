@@ -5,7 +5,7 @@ import MainLayout from "../src/layouts/main/index.jsx";
 import Loading from "./components/Loading";
 import { AdminLayout } from "./layouts/admin/index.jsx";
 import { List } from "lucide-react";
-import ListProductPage from "./pages/main/ProductPage/components/listproduct.jsx";
+import ListProductPage from "./pages/main/ListProduct/listProduct.jsx";
 
 // 2. Định nghĩa Lazy Import (Code splitting)
 // Cách này hoạt động tốt với "export default"
@@ -82,7 +82,7 @@ const router = createBrowserRouter([
         element: <ProfilePage />,
       },
       {
-        path: "listproduct",
+        path: "products",
         element: <ListProductPage />,
       },
     ],

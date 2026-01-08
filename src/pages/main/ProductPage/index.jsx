@@ -7,7 +7,7 @@ import SelectColor from "./components/selectColor";
 import { formatMoney } from "../../../utils/formatMoney";
 import ServiceHighlights from "./components/ServiceHighlights";
 import ProductDetail from "./components/ProductDetail";
-import ProductItem from "../MenPage/components/ProductItem";
+import ProductItem from "../../../components/ProductItem";
 import RatingOverview from "./components/RatingOverview";
 import ListReviewDetail from "./components/ListReviewDetail";
 import TransparentPricing from "./components/TransparentPricing";

@@ -8,7 +8,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { set } from "react-hook-form";
 
 const AddCategoryDialog = ({ open, onOpenChange, onSubmit }) => {
   const [name, setName] = React.useState("");
