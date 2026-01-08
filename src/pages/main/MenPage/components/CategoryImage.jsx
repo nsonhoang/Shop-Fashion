@@ -1,4 +1,4 @@
-import CategoryImageItem from "./CategoryImageItem";
+import CategoryImageItem from "../../../../components/CategoryImageItem";
 
 // 1. IMPORT ẢNH (Để bundler xử lý được đường dẫn)
 // Hoặc bạn có thể vứt ảnh vào thư mục public và dùng đường dẫn "/assets/..."

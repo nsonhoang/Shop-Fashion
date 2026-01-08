@@ -1,51 +1,60 @@
-import React, { useState } from "react";
+import CategoryItem from "@/components/CategoryItem";
 
-const CategoryProduct = ({
-  title = "Danh Mục Sản Phẩm",
-  filterOptions = [
-    { id: 'all', label: 'Tất cả', value: 'all' },
-    { id: 'new', label: 'Mới nhất', value: 'new' },
-    { id: 'sale', label: 'Đang giảm giá', value: 'sale' },
-    { id: 'popular', label: 'Phổ biến', value: 'popular' },
-  ],
-  onFilterChange
-}) => {
-  const [activeFilter, setActiveFilter] = useState('all');
-
-  const handleFilterClick = (filterValue) => {
-    setActiveFilter(filterValue);
-    if (onFilterChange) {
-      onFilterChange(filterValue);
-    }
-  };
-
+function CategoryProduct() {
   return (
-    <div className="py-4 px-4 sm:px-6 lg:px-8 border-b border-gray-200">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
-            {title}
-          </h2>
-          
-          <div className="flex flex-wrap gap-2">
-            {filterOptions.map((option) => (
-              <button
-                key={option.id}
-                onClick={() => handleFilterClick(option.value)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  activeFilter === option.value
-                    ? 'bg-pink-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
+    // Thêm class 'sticky top-0 z-50 bg-white' nếu muốn nó dính trên cùng khi cuộn
+    <div className="w-full bg-white border-b border-gray-100">
+      <div
+        className="
+        flex items-center 
+        gap-4 
+        px-4 
+        h-16             /* Thay h-15 (không chuẩn) thành h-16 (64px) */
+        overflow-x-auto  /* Cho phép cuộn ngang trên mobile */
+        no-scrollbar     /* Ẩn thanh scrollbar đi cho đẹp */
+        md:justify-center /* Trên PC thì căn giữa */
+      "
+      >
+        {/* Wrapper cho item để đảm bảo chữ không bị xuống dòng */}
+        <div className="shrink-0">
+          <CategoryItem
+            link="/products?gender=men&category=outerwear"
+            title="Áo Khoác Ấm"
+          />
+        </div>
+        <div className="shrink-0">
+          <CategoryItem
+            link="/products?gender=men&category=tshirts"
+            title="Áo Thun"
+          />
+        </div>
+        <div className="shrink-0">
+          <CategoryItem
+            link="/products?gender=men&category=pants"
+            title="Quần Dài"
+          />
+        </div>
+        <div className="shrink-0">
+          <CategoryItem
+            link="/products?gender=men&category=shoes"
+            title="Giày Dép"
+          />
+        </div>
+        <div className="shrink-0">
+          <CategoryItem
+            link="/products?gender=men&category=accessories"
+            title="Phụ Kiện"
+          />
+        </div>
+        <div className="shrink-0">
+          <CategoryItem
+            link="/products?gender=men&category=sale"
+            title="Khuyến Mãi"
+          />
         </div>
       </div>
     </div>
   );
-};
+}
 
 export default CategoryProduct;

@@ -4,7 +4,7 @@ import { Trash2 } from "lucide-react";
 import { QuantitySelector } from "./QuantitySelector";
 import { useState } from "react";
 
-function CartItem({ cartItem }) {
+function CartSheetItem({ cartItem }) {
   const [quantity, setQuantity] = useState(cartItem.quantity);
 
   const handleDecrease = (quantity) => {
@@ -73,4 +73,4 @@ function CartItem({ cartItem }) {
   );
 }
 
-export default CartItem;
+export default CartSheetItem;

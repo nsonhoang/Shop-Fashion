@@ -1,4 +1,4 @@
-import CategoryItem from "./CategoryItem";
+import CategoryItem from "../../../../components/CategoryItem";
 
 function CategoryProduct() {
   return (
@@ -17,22 +17,40 @@ function CategoryProduct() {
       >
         {/* Wrapper cho item để đảm bảo chữ không bị xuống dòng */}
         <div className="shrink-0">
-          <CategoryItem link="/men/outerwear" title="Áo Khoác Ấm" />
+          <CategoryItem
+            link="/products?gender=men&category=outerwear"
+            title="Áo Khoác Ấm"
+          />
         </div>
         <div className="shrink-0">
-          <CategoryItem link="/men/tshirts" title="Áo Thun" />
+          <CategoryItem
+            link="/products?gender=men&category=tshirts"
+            title="Áo Thun"
+          />
         </div>
         <div className="shrink-0">
-          <CategoryItem link="/men/pants" title="Quần Dài" />
+          <CategoryItem
+            link="/products?gender=men&category=pants"
+            title="Quần Dài"
+          />
         </div>
         <div className="shrink-0">
-          <CategoryItem link="/men/shoes" title="Giày Dép" />
+          <CategoryItem
+            link="/products?gender=men&category=shoes"
+            title="Giày Dép"
+          />
         </div>
         <div className="shrink-0">
-          <CategoryItem link="/men/accessories" title="Phụ Kiện" />
+          <CategoryItem
+            link="/products?gender=men&category=accessories"
+            title="Phụ Kiện"
+          />
         </div>
         <div className="shrink-0">
-          <CategoryItem link="/men/sale" title="Khuyến Mãi" />
+          <CategoryItem
+            link="/products?gender=men&category=sale"
+            title="Khuyến Mãi"
+          />
         </div>
       </div>
     </div>

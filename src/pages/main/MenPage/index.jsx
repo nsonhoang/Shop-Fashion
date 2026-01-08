@@ -3,10 +3,18 @@ import CategoryProduct from "./components/categoryProduct";
 import bannerImg from "@/assets/banner.png";
 import CategoryImage from "./components/CategoryImage";
 import ProductList from "./components/ProductList";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import FeaturesSection from "./components/FeaturesSection";
 
 const MenPage = () => {
+  const navigate = useNavigate();
+
+  const goToMenProducts = () => {
+    // Chuyển hướng kèm theo bộ lọc
+    navigate("/products?gender=men");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <div className="flex flex-col flex-1 w-full">
       {/* Thanh danh mục sản phẩm (Sticky hoặc tĩnh tùy component bên trong) */}
@@ -38,7 +46,7 @@ const MenPage = () => {
         </div>
       </div>
 
-      {/* --- MUA SẮM THEO DANH MỤC --- */}
+      {/* MUA SẮM THEO DANH MỤC */}
       <section className="py-16 px-4">
         <div className="container mx-auto">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-10">
@@ -52,12 +60,12 @@ const MenPage = () => {
         </div>
       </section>
 
-      {/* --- DANH SÁCH SẢN PHẨM --- */}
+      {/* DANH SÁCH SẢN PHẨM */}
       <section className="py-10 px-4 bg-gray-50/50">
         <div className="container mx-auto flex flex-col items-center">
           {/* Link tiêu đề có hiệu ứng hover */}
           <Link
-            to="/product/men"
+            onClick={goToMenProducts}
             className="text-2xl md:text-3xl font-bold mb-8 hover:text-gray-600 transition-colors border-b-2 border-transparent hover:border-gray-600 pb-1"
           >
             Danh sách sản phẩm
@@ -69,9 +77,7 @@ const MenPage = () => {
 
           {/* Nút xem thêm (Optional - nếu list quá dài) */}
           <div className="mt-8">
-            <Link to="/listproduct"
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            >
+            <Link onClick={goToMenProducts}>
               <button className="px-8 py-2 border border-gray-300 rounded-full hover:bg-black hover:text-white transition-all text-sm font-medium">
                 Xem tất cả
               </button>

@@ -10,7 +10,7 @@ import { mockCartData } from "@/constants/mockValue";
 import { Car, ShoppingBag, ShoppingCart, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
-import CartItem from "./CartItem";
+import CartSheetItem from "./CartSheetItem";
 import { formatMoney } from "@/utils/formatMoney";
 
 function CartSheet() {
@@ -58,7 +58,7 @@ function CartSheet() {
             <div className="flex flex-col h-full justify-between">
               <div>
                 {cartList.items.map((item, index) => (
-                  <CartItem key={index} cartItem={item} />
+                  <CartSheetItem key={index} cartItem={item} />
                 ))}
               </div>
               <div className="border-t p-4 mt-auto shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]  ">
