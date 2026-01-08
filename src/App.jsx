@@ -4,6 +4,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import MainLayout from "../src/layouts/main/index.jsx";
 import Loading from "./components/Loading";
 import { AdminLayout } from "./layouts/admin/index.jsx";
+import { List } from "lucide-react";
+import ListProductPage from "./pages/main/ProductPage/components/listproduct.jsx";
 
 // 2. Định nghĩa Lazy Import (Code splitting)
 // Cách này hoạt động tốt với "export default"
@@ -78,6 +80,10 @@ const router = createBrowserRouter([
       {
         path: "profile",
         element: <ProfilePage />,
+      },
+      {
+        path: "listproduct",
+        element: <ListProductPage />,
       },
     ],
     // --- KẾT THÚC: Route trung gian ---
