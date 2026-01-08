@@ -69,7 +69,9 @@ const MenPage = () => {
 
           {/* Nút xem thêm (Optional - nếu list quá dài) */}
           <div className="mt-8">
-            <Link to="/product/men">
+            <Link to="/listproduct"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            >
               <button className="px-8 py-2 border border-gray-300 rounded-full hover:bg-black hover:text-white transition-all text-sm font-medium">
                 Xem tất cả
               </button>
