@@ -10,7 +10,7 @@ import { categories } from "./mockData";
 
 export default function FilterBar({ filters, setFilters }) {
   return (
-    <div className="flex flex-wrap gap-4 items-center">
+    <div className="flex items-center gap-4 overflow-x-auto whitespace-nowrap">
 
       {/* Search */}
       <Input
@@ -19,7 +19,7 @@ export default function FilterBar({ filters, setFilters }) {
         onChange={(e) =>
           setFilters({ ...filters, search: e.target.value })
         }
-        className="max-w-sm"
+        className="w-[220px] flex-shrink-0"
       />
 
       {/* Category */}
@@ -29,7 +29,7 @@ export default function FilterBar({ filters, setFilters }) {
           setFilters({ ...filters, category: v === "all" ? "" : v })
         }
       >
-        <SelectTrigger className="w-[200px]">
+        <SelectTrigger className="w-[180px] flex-shrink-0">
           <SelectValue placeholder="Category" />
         </SelectTrigger>
         <SelectContent>
@@ -49,7 +49,7 @@ export default function FilterBar({ filters, setFilters }) {
           setFilters({ ...filters, status: v === "all" ? "" : v })
         }
       >
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-[150px] flex-shrink-0">
           <SelectValue placeholder="Status" />
         </SelectTrigger>
         <SelectContent>
@@ -66,7 +66,7 @@ export default function FilterBar({ filters, setFilters }) {
           setFilters({ ...filters, sort: v === "default" ? "" : v })
         }
       >
-        <SelectTrigger className="w-[200px]">
+        <SelectTrigger className="w-[180px] flex-shrink-0">
           <SelectValue placeholder="Sort by" />
         </SelectTrigger>
         <SelectContent>
@@ -77,6 +77,7 @@ export default function FilterBar({ filters, setFilters }) {
           <SelectItem value="price-desc">Price High → Low</SelectItem>
         </SelectContent>
       </Select>
+
     </div>
   );
 }

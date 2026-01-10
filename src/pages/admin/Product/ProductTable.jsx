@@ -9,7 +9,7 @@ const statusStyle = {
   false: "!bg-gray-100 !text-gray-600 border border-gray-300",
 };
 
-export default function ProductTable({ products, onManage }) {
+export default function ProductTable({ products, onManage, onDelete }) {
   return (
     <Table>
       <TableHeader>
@@ -29,11 +29,25 @@ export default function ProductTable({ products, onManage }) {
             <TableCell>{p.category}</TableCell>
             <TableCell>${p.base_price}</TableCell>
             <TableCell>
-              <Badge className={statusStyle[p.is_active]}>{p.is_active ? "Active" : "Disabled"}</Badge>
+              <Badge className={statusStyle[p.is_active]}>
+                {p.is_active ? "Active" : "Disabled"}
+              </Badge>
             </TableCell>
-            <TableCell className="text-center">
+            <TableCell className="text-center space-x-2">
               <Button size="sm" onClick={() => onManage(p)}>
                 Manage
+              </Button>
+
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => {
+                  if (confirm(`Delete product "${p.name}"?`)) {
+                    onDelete(p.id);
+                  }
+                }}
+              >
+                Delete
               </Button>
             </TableCell>
           </TableRow>

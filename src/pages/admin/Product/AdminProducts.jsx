@@ -37,6 +37,10 @@ export default function AdminProducts() {
     );
   };
 
+  const handleDelete = (productId) => {
+    setProducts(prev => prev.filter(p => p.id !== productId));
+  }
+
   // =========================
   // FILTER LOGIC
   // =========================
@@ -104,41 +108,41 @@ export default function AdminProducts() {
   // =========================
 
   return (
-    <>
-      <AdminHeader title="Product Management" />
+  <>
+    <AdminHeader title="Product Management" />
 
-      <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6">
 
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Product Management</h1>
-          <Button onClick={() => setOpenForm(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Product
-          </Button>
-        </div>
-
-        {/* Filter Bar */}
+      {/* Header + Filter + Add button */}
+      <div className="flex justify-between items-center">
         <FilterBar filters={filters} setFilters={setFilters} />
 
-        {/* Product Table */}
-        <Card>
-          <CardContent className="p-0">
-            <ProductTable
-              products={filteredProducts}
-              onManage={setSelectedProduct}
-            />
-          </CardContent>
-        </Card>
-
-        {/* Create Form */}
-        {openForm && (
-          <ProductForm
-            onClose={() => setOpenForm(false)}
-            onSubmit={handleCreate}
-          />
-        )}
+        <Button onClick={() => setOpenForm(true)}>
+          <Plus className="w-4 h-4 mr-2" />
+          Add Product
+        </Button>
       </div>
-    </>
-  );
+
+      {/* Product Table */}
+      <Card>
+        <CardContent className="p-0">
+          <ProductTable
+            products={filteredProducts}
+            onManage={setSelectedProduct}
+            onDelete={handleDelete}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Create Form */}
+      {openForm && (
+        <ProductForm
+          onClose={() => setOpenForm(false)}
+          onSubmit={handleCreate}
+        />
+      )}
+    </div>
+  </>
+);
+
 }
