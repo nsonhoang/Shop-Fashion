@@ -3,6 +3,8 @@ import CategoryProduct from "../../../components/womenPage/CategoryProduct";
 import CategoryImage from "../../../components/womenPage/CategoryImage";
 import ProductList from "../../../components/womenPage/ProductList";
 import bannerImg from "../../../assets/banner2.png";
+import ProductReviews from "../../main/Review/index"; // thêm phần các comment đánh giá review
+import { womenReviews } from "../../main/Review/components/sampleReview" // data mẫu
 import { Link, useNavigate } from "react-router-dom";
 const categories = [
   {
@@ -50,6 +52,10 @@ const sizeChart = [
 ];
 
 const WomenPage = () => {
+  // Kiểm tra data
+  console.log("Reviews data:", womenReviews);
+  console.log("Reviews array:", womenReviews?.reviews);
+  console.log("Reviews length:", womenReviews?.reviews?.length);
   const navigate = useNavigate();
   const goToWomenProducts = () => {
     // Chuyển hướng kèm theo bộ lọc
@@ -65,6 +71,12 @@ const WomenPage = () => {
   const handleViewSizeGuide = () => {
     console.log("Open size guide modal");
     // Hiển thị modal hoặc chuyển trang
+  };
+
+  // để dây sau dùng
+    const handleSortReviews = (sortBy) => {
+    console.log('Sort reviews by:', sortBy);
+    // chưa xong
   };
 
   return (
@@ -121,6 +133,29 @@ const WomenPage = () => {
         >
           Xem Tất Cả Sản Phẩm
         </Link>
+      </section>
+
+      {/* đây phần review */}
+      <section className="py-16 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              Đánh Giá Từ Khách Hàng
+            </h2>
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+              Khám phá những trải nghiệm thực tế từ khách hàng đã sử dụng sản phẩm của chúng tôi
+            </p>
+          </div>
+          
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-10 shadow-sm">
+            <ProductReviews
+              reviews={womenReviews.reviews}
+              averageRating={womenReviews.averageRating}
+              ratingDistribution={womenReviews.ratingDistribution}
+              onSortChange={handleSortReviews}
+            />
+          </div>
+        </div>
       </section>
 
       <section className="bg-gray-50 py-12 sm:py-16">
