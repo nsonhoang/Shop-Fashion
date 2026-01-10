@@ -5,6 +5,8 @@ import CategoryImage from "./components/CategoryImage";
 import ProductList from "./components/ProductList";
 import { Link, useNavigate } from "react-router-dom";
 import FeaturesSection from "./components/FeaturesSection";
+import ProductReviews from "../../main/Review/index"; // thêm phần các comment đánh giá review
+import { menReviews } from "../../main/Review/components/sampleReview" // data mẫu
 
 const MenPage = () => {
   const navigate = useNavigate();
@@ -13,6 +15,12 @@ const MenPage = () => {
     // Chuyển hướng kèm theo bộ lọc
     navigate("/products?gender=men");
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+    // để dây sau dùng
+    const handleSortReviews = (sortBy) => {
+    console.log('Sort reviews by:', sortBy);
+    // chưa xong
   };
 
   return (
@@ -82,6 +90,29 @@ const MenPage = () => {
                 Xem tất cả
               </button>
             </Link>
+          </div>
+        </div>
+      </section>
+      
+      {/* đây phần review */}
+      <section className="py-16 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              Đánh Giá Từ Khách Hàng
+            </h2>
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+              Khám phá những trải nghiệm thực tế từ khách hàng đã sử dụng sản phẩm của chúng tôi
+            </p>
+          </div>
+          
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-10 shadow-sm">
+            <ProductReviews
+              reviews={menReviews.reviews}
+              averageRating={menReviews.averageRating}
+              ratingDistribution={menReviews.ratingDistribution}
+              onSortChange={handleSortReviews}
+            />
           </div>
         </div>
       </section>
