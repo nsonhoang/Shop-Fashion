@@ -8,22 +8,23 @@ import { List } from "lucide-react";
 import ListProductPage from "./pages/main/ListProduct/listProduct.jsx";
 
 // 2. Định nghĩa Lazy Import (Code splitting)
-// Cách này hoạt động tốt với "export default"
-const MenPage = React.lazy(() => import("@/pages/main/MenPage/index.jsx"));
-const WomenPage = React.lazy(() => import("@/pages/main/WomenPage/index.jsx"));
-const AboutPage = React.lazy(() => import("@/pages/main/About/index.jsx"));
-const StoryPage = React.lazy(() => import("@/pages/main/Story/index.jsx"));
-const ProductPage = React.lazy(() =>
-  import("@/pages/main/ProductPage/index.jsx")
+
+const MenPage = React.lazy(() => import("@/pages/main/MenPage"));
+const WomenPage = React.lazy(() => import("@/pages/main/WomenPage"));
+const AboutPage = React.lazy(() => import("@/pages/main/About"));
+const StoryPage = React.lazy(() => import("@/pages/main/Story"));
+const ProductPage = React.lazy(() => import("@/pages/main/ProductPage"));
+const OrderHistory = React.lazy(() => import("@/pages/main/OrderHistory"));
+const ProfilePage = React.lazy(() => import("@/pages/main/ProfilePage"));
+const RegisterSuccessPage = React.lazy(() =>
+  import("@/pages/main/RegisterSuccessPage")
 );
-const OrderHistory = React.lazy(() =>
-  import("@/pages/main/OrderHistory/index.jsx")
+
+const EmailConfirmationPage = React.lazy(() =>
+  import("@/pages/main/EmailConfirmationPage")
 );
-const ProfilePage = React.lazy(() =>
-  import("@/pages/main/ProfilePage/index.jsx")
-);
-const ErrorPage = React.lazy(() => import("@/pages/main/Error/index.jsx"));
-const Dashboard = React.lazy(() => import("@/pages/admin/Dashboard/index.jsx"));
+const ErrorPage = React.lazy(() => import("@/pages/main/Error"));
+const Dashboard = React.lazy(() => import("@/pages/admin/Dashboard"));
 const ProductAdminPage = React.lazy(() =>
   import("@/pages/admin/Product/index.jsx")
 );
@@ -84,6 +85,14 @@ const router = createBrowserRouter([
       {
         path: "products",
         element: <ListProductPage />,
+      },
+      {
+        path: "register-success",
+        element: <RegisterSuccessPage />,
+      },
+      {
+        path: "email-confirmation",
+        element: <EmailConfirmationPage />,
       },
     ],
     // --- KẾT THÚC: Route trung gian ---

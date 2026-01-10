@@ -11,32 +11,42 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 function DialogLogin() {
+  const [isOpen, setIsOpen] = useState(false);
   const [isLoginView, setIsLoginView] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // State cho mắt ẩn/hiện pass xác nhận
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(""); // State lưu lỗi validation
+  const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
+    fullName: "", // 1. Thêm field fullName vào state
     email: "",
     password: "",
-    confirmPassword: "", // Thêm field này
+    confirmPassword: "",
   });
 
+  const { signUp, signIn } = useAuth();
+  const navigate = useNavigate();
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
-    setError(""); // Xóa lỗi khi người dùng gõ lại
+    setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    // --- VALIDATION CƠ BẢN ---
-    // Nếu đang Đăng ký thì mới kiểm tra khớp mật khẩu
+    // --- VALIDATION ---
     if (!isLoginView) {
+      // 2. Validate fullName
+      if (!formData.fullName.trim()) {
+        setError("Vui lòng nhập họ và tên.");
+        return;
+      }
       if (formData.password !== formData.confirmPassword) {
         setError("Mật khẩu xác nhận không khớp!");
         return;
@@ -45,31 +55,62 @@ function DialogLogin() {
         setError("Mật khẩu phải có ít nhất 6 ký tự.");
         return;
       }
+      try {
+        setIsLoading(true);
+        await signUp(formData.email, formData.password, formData.fullName);
+        // Sau khi đăng ký thành công đóng dialog và thông báo đăng kí thành công
+
+        setIsOpen(false);
+        navigate("/register-success");
+      } catch (error) {
+        setError("Đăng ký không thành công. Vui lòng thử lại." + error.message);
+      } finally {
+        setIsLoading(false);
+      }
     }
 
-    setIsLoading(true);
+    // handle đăng nhập
+    else if (isLoginView) {
+      // 5. Validate email và password
+      if (!formData.email.trim()) {
+        setError("Vui lòng nhập email.");
+        return;
+      }
+      if (!formData.password.trim()) {
+        setError("Vui lòng nhập mật khẩu.");
+        return;
+      }
+      try {
+        setIsLoading(true);
+        await signIn(formData.email, formData.password);
+        alert("Đăng nhập thành công!");
+      } catch (error) {
+        setError(
+          "Đăng nhập không thành công. Vui lòng thử lại. " + error.message
+        );
+        console.log(error);
+        alert(error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    }
 
     // Giả lập call API
     console.log(
       isLoginView ? "Đang Đăng nhập..." : "Đang Đăng ký...",
       formData
     );
-
-    setTimeout(() => {
-      setIsLoading(false);
-      // alert("Thành công!");
-    }, 1000);
   };
 
-  // Hàm reset form khi chuyển đổi Login <-> Register
   const toggleView = () => {
     setIsLoginView(!isLoginView);
     setError("");
-    setFormData({ email: "", password: "", confirmPassword: "" });
+    // Reset form data bao gồm cả fullName
+    setFormData({ fullName: "", email: "", password: "", confirmPassword: "" });
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <button className="bg-gray-900 text-white text-sm font-medium px-5 py-2 rounded-md hover:bg-gray-800 transition-colors w-full md:w-auto">
           Log In
@@ -89,11 +130,25 @@ function DialogLogin() {
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          {/* Hiển thị lỗi nếu có */}
           {error && (
             <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
               <AlertCircle className="w-4 h-4" />
               <span>{error}</span>
+            </div>
+          )}
+
+          {/* 4. FIELD HỌ TÊN (Chỉ hiện khi Đăng ký) */}
+          {!isLoginView && (
+            <div className="grid gap-2 animate-in fade-in zoom-in-95 duration-200">
+              <Label htmlFor="fullName">Họ và tên</Label>
+              <Input
+                id="fullName"
+                type="text"
+                placeholder="Nguyễn Văn A"
+                value={formData.fullName}
+                onChange={handleChange}
+                required
+              />
             </div>
           )}
 
@@ -176,14 +231,12 @@ function DialogLogin() {
             </div>
           )}
 
-          {/* Submit Button */}
           <Button type="submit" className="w-full mt-2" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isLoginView ? "Đăng nhập" : "Đăng ký miễn phí"}
           </Button>
         </form>
 
-        {/* Divider */}
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t" />
@@ -195,7 +248,6 @@ function DialogLogin() {
           </div>
         </div>
 
-        {/* Social Button */}
         <Button
           variant="outline"
           className="w-full"
@@ -222,7 +274,6 @@ function DialogLogin() {
           Google
         </Button>
 
-        {/* Toggle Login/Register */}
         <div className="mt-2 text-center text-sm">
           {isLoginView ? "Chưa có tài khoản? " : "Đã có tài khoản? "}
           <button
