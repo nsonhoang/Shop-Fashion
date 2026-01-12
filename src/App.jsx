@@ -27,7 +27,7 @@ const EmailConfirmationPage = React.lazy(() =>
 const ErrorPage = React.lazy(() => import("@/pages/main/Error"));
 const Dashboard = React.lazy(() => import("@/pages/admin/Dashboard"));
 const ProductAdminPage = React.lazy(() =>
-  import("@/pages/admin/Product/index.jsx")
+  import("@/pages/admin/Product/AdminProducts.jsx")
 );
 const CategoriesAdminPage = React.lazy(() =>
   import("@/pages/admin/Categories/index.jsx")
