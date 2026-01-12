@@ -6,6 +6,7 @@ import Loading from "./components/Loading";
 import { AdminLayout } from "./layouts/admin/index.jsx";
 import { List } from "lucide-react";
 import ListProductPage from "./pages/main/ListProduct/listProduct.jsx";
+import { adminLoader } from "./utils/authLoader.js";
 
 // 2. Định nghĩa Lazy Import (Code splitting)
 
@@ -101,6 +102,7 @@ const router = createBrowserRouter([
     path: "/admin",
     element: <AdminLayout />,
     Suspense: <Loading />,
+    loader: adminLoader,
     children: [
       {
         index: true,
