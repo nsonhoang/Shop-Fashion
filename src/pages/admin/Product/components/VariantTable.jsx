@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
 import VariantForm from "./VariantForm";
+import { formatMoney } from "@/utils/formatMoney";
 
 export default function VariantTable({ variants, onChange }) {
   const [open, setOpen] = useState(false);
@@ -12,14 +13,16 @@ export default function VariantTable({ variants, onChange }) {
   };
 
   const deleteVariant = (id) => {
-    onChange(variants.filter(v => v.id !== id));
+    onChange(variants.filter((v) => v.id !== id));
   };
 
   return (
     <div className="border rounded-lg p-4 space-y-3">
       <div className="flex justify-between items-center">
         <h3 className="font-semibold">Variants</h3>
-        <Button size="sm" onClick={() => setOpen(true)}>+ Add Variant</Button>
+        <Button size="sm" onClick={() => setOpen(true)}>
+          + Add Variant
+        </Button>
       </div>
 
       <table className="w-full text-center border">
@@ -34,14 +37,20 @@ export default function VariantTable({ variants, onChange }) {
           </tr>
         </thead>
         <tbody>
-          {variants.map(v => (
+          {variants.map((v) => (
             <tr key={v.id} className="border-t">
               <td className="p-2">{v.sku}</td>
               <td className="p-2">{v.size}</td>
               <td className="p-2">{v.color}</td>
-              <td className="p-2">${v.price}</td>
+              <td className="p-2">{formatMoney(v.price)}</td>
               <td className="p-2">{v.stock}</td>
               <td className="p-2 text-center">
+                <Button
+                  className="bg-transparent text-blue-500 hover:underline hover:bg-transparent"
+                  onClick={() => console.log("Edit variant", v)}
+                >
+                  <Edit className="w-4 h-4 " />
+                </Button>
                 <Button
                   size="icon"
                   variant="ghost"
@@ -55,7 +64,9 @@ export default function VariantTable({ variants, onChange }) {
         </tbody>
       </table>
 
-      {open && <VariantForm onClose={() => setOpen(false)} onSubmit={addVariant} />}
+      {open && (
+        <VariantForm onClose={() => setOpen(false)} onSubmit={addVariant} />
+      )}
     </div>
   );
 }

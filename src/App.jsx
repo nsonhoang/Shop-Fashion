@@ -101,7 +101,8 @@ const router = createBrowserRouter([
   {
     path: "/admin",
     element: <AdminLayout />,
-    Suspense: <Loading />,
+    // Suspense: <Loading />,
+    errorElement: <ErrorPage />,
     loader: adminLoader,
     children: [
       {

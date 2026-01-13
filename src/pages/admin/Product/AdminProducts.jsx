@@ -1,19 +1,21 @@
 import { AdminHeader } from "@/layouts/admin/component/header";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
-import { mockProducts } from "./mockData";
-import ProductTable from "./ProductTable";
-import ProductForm from "./ProductForm";
-import ProductDetail from "./ProductDetail";
-import FilterBar from "./FilterBar";
+import ProductTable from "./components/ProductTable";
+import ProductForm from "./components/ProductForm";
+import ProductDetail from "./components/ProductDetail";
+import FilterBar from "./components/FilterBar";
+import { createProduct, getProducts } from "@/services/productService";
+import CustomAlert from "@/components/CustomAlert";
 
 export default function AdminProducts() {
-  const [products, setProducts] = useState(mockProducts);
+  const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [openForm, setOpenForm] = useState(false);
+  const [alertState, setAlertState] = useState(null); // { type, title, message }
 
   const [filters, setFilters] = useState({
     search: "",
@@ -22,18 +24,53 @@ export default function AdminProducts() {
     sort: "",
   });
 
-  // =========================
-  // CRUD HANDLERS
-  // =========================
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const ListProducts = await getProducts();
+        setProducts(ListProducts);
+      } catch (error) {
+        setAlertState({
+          type: "error",
+          title: "Lỗi tải dữ liệu",
+          message: "Không thể lấy danh sách danh mục. Vui lòng thử lại.",
+        });
+        console.error("Lỗi khi lấy danh sách sản phẩm:", error.message);
+      }
+    };
 
-  const handleCreate = (product) => {
-    setProducts(prev => [...prev, product]);
-    setOpenForm(false);
+    fetchProducts();
+  }, []);
+
+  const handleCreate = async (product) => {
+    // setProducts((prev) => [...prev, product]);
+    // setOpenForm(false);
+
+    console.log("Create product", product);
+    try {
+      const createdProduct = await createProduct(product);
+      setProducts((prev) => [...prev, createdProduct]);
+      setOpenForm(false);
+      setAlertState({
+        type: "success",
+        title: "Thành công!",
+        message: `Đã thêm danh mục "${createdProduct.name}" vào hệ thống.`,
+      });
+    } catch (error) {
+      setAlertState({
+        type: "error",
+        title: "Thất bại",
+        message: "Có lỗi xảy ra khi tạo danh mục. Vui lòng thử lại.",
+      });
+      console.error("Lỗi khi tạo sản phẩm:", error.message);
+    } finally {
+      setTimeout(() => setAlertState(null), 3000);
+    }
   };
 
   const handleUpdate = (updatedProduct) => {
-    setProducts(prev =>
-      prev.map(p => (p.id === updatedProduct.id ? updatedProduct : p))
+    setProducts((prev) =>
+      prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
     );
   };
 
@@ -46,23 +83,23 @@ export default function AdminProducts() {
 
     // Search
     if (filters.search) {
-      result = result.filter(p =>
+      result = result.filter((p) =>
         p.name.toLowerCase().includes(filters.search.toLowerCase())
       );
     }
 
     // Category
     if (filters.category) {
-      result = result.filter(p => p.category === filters.category);
+      result = result.filter((p) => p.category === filters.category);
     }
 
     // Status
     if (filters.status === "active") {
-      result = result.filter(p => p.is_active);
+      result = result.filter((p) => p.is_active);
     }
 
     if (filters.status === "inactive") {
-      result = result.filter(p => !p.is_active);
+      result = result.filter((p) => !p.is_active);
     }
 
     // Sort
@@ -85,30 +122,31 @@ export default function AdminProducts() {
     return result;
   }, [products, filters]);
 
-  // =========================
-  // PRODUCT DETAIL PAGE
-  // =========================
-
   if (selectedProduct) {
     return (
       <ProductDetail
-        product={selectedProduct}
+        //  truyền id xuống
+        productId={selectedProduct}
         onBack={() => setSelectedProduct(null)}
         onUpdate={handleUpdate}
       />
     );
   }
 
-  // =========================
-  // MAIN PAGE
-  // =========================
-
   return (
     <>
       <AdminHeader title="Product Management" />
 
       <div className="p-6 space-y-6">
-
+        {alertState && (
+          <CustomAlert
+            type={alertState.type}
+            title={alertState.title}
+            onClose={() => setAlertState(null)}
+          >
+            {alertState.message}
+          </CustomAlert>
+        )}
         {/* Header */}
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Product Management</h1>
