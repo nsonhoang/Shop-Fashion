@@ -10,20 +10,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
+import { formatNumber } from "@/utils/formatNumber";
 
 export default function VariantForm({
   onClose,
   onSubmit,
   baseProductPrice = 0,
+  editVariant,
 }) {
   // State form
   const [form, setForm] = useState({
-    sku: "",
-    size: "",
-    color: "",
-    price: baseProductPrice,
-    stock: 0,
-    image_url: "",
+    // sku: "", tự động sinh ra
+
+    size: editVariant?.size || "",
+    color: editVariant?.color || "",
+    price_adjustment: editVariant?.price_adjustment || baseProductPrice,
+    // stock: 0, khong có
+    image_url: editVariant?.image_url || "",
   });
 
   const [errors, setErrors] = useState({});
@@ -61,7 +64,7 @@ export default function VariantForm({
 
   const validate = () => {
     const newErrors = {};
-    if (!form.sku.trim()) newErrors.sku = "SKU là bắt buộc";
+    // if (!form.sku.trim()) newErrors.sku = "SKU là bắt buộc";
     if (!form.size.trim()) newErrors.size = "Size là bắt buộc";
     if (!form.color.trim()) newErrors.color = "Màu sắc là bắt buộc";
     if (Number(form.price) < 0) newErrors.price = "Giá không được âm";
@@ -75,16 +78,13 @@ export default function VariantForm({
     if (!validate()) return;
 
     const newVariant = {
-      variant_id: Date.now().toString(),
-      sku: form.sku.toUpperCase(),
+      variant_id: editVariant?.variant_id || undefined,
       size: form.size.toUpperCase(),
       color: form.color,
-      price: Number(form.price),
+      price_adjustment: Number(form.price_adjustment),
       image_url: form.image_url || "https://placehold.co/400",
-      quantity_available: Number(form.stock),
-      quantity_reserved: 0,
     };
-
+    console.log("New variant:", newVariant);
     onSubmit(newVariant);
     onClose();
   };
@@ -141,53 +141,24 @@ export default function VariantForm({
             </div>
           </div>
 
-          {/* Hàng 2: SKU */}
-          <div className="space-y-1">
-            <Label>
-              Mã SKU <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              placeholder="VD: AO-THUN-RED-S"
-              value={form.sku}
-              // Riêng SKU nếu user tự sửa thì vẫn cho phép override
-              onChange={(e) => setForm({ ...form, sku: e.target.value })}
-              className={errors.sku ? "border-red-500" : ""}
-            />
-            <p className="text-[10px] text-muted-foreground">
-              Mã định danh duy nhất cho biến thể này.
-            </p>
-            {errors.sku && (
-              <span className="text-[10px] text-red-500">{errors.sku}</span>
-            )}
-          </div>
-
           {/* Hàng 3: Giá và Tồn kho */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label>Giá bán biến thể</Label>
               <Input
-                type="number"
+                type="text"
                 placeholder="0"
-                value={form.price}
-                onChange={(e) => setForm({ ...form, price: e.target.value })}
-                className={errors.price ? "border-red-500" : ""}
+                value={formatNumber(form.price_adjustment)}
+                onChange={(e) => {
+                  const rawValue = e.target.value.replace(/\D/g, "");
+                  setForm({ ...form, price_adjustment: rawValue });
+                }}
+                className={errors.price_adjustment ? "border-red-500" : ""}
               />
-              {errors.price && (
-                <span className="text-[10px] text-red-500">{errors.price}</span>
-              )}
-            </div>
-
-            <div className="space-y-1">
-              <Label>Tồn kho ban đầu (Stock)</Label>
-              <Input
-                type="number"
-                placeholder="0"
-                value={form.stock}
-                onChange={(e) => setForm({ ...form, stock: e.target.value })}
-                className={errors.stock ? "border-red-500" : ""}
-              />
-              {errors.stock && (
-                <span className="text-[10px] text-red-500">{errors.stock}</span>
+              {errors.price_adjustment && (
+                <span className="text-[10px] text-red-500">
+                  {errors.price_adjustment}
+                </span>
               )}
             </div>
           </div>

@@ -5,7 +5,7 @@ import ImageGrid from "./ImageGrid";
 import { getDetailProductById } from "@/services/productService";
 import { Loader2 } from "lucide-react";
 
-export default function ProductDetail({ productId, onBack, onUpdate }) {
+export default function ProductDetail({ productId, onBack }) {
   //truyền id xuống để lấy dữ liệu bằng api lu
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(true); //vào là loading
@@ -26,17 +26,17 @@ export default function ProductDetail({ productId, onBack, onUpdate }) {
     fetchProductDetail();
   }, [productId]);
 
-  const updateVariants = (variants) => {
-    const updated = { ...data, variants };
-    setData(updated);
-    onUpdate(updated);
-  };
+  // const updateVariants = (variants) => {
+  //   const updated = { ...data, variants };
+  //   setData(updated);
+  //   onUpdate(updated);
+  // };
 
-  const updateImages = (images) => {
-    const updated = { ...data, images };
-    setData(updated);
-    onUpdate(updated);
-  };
+  // const updateImages = (images) => {
+  //   const updated = { ...data, images };
+  //   setData(updated);
+  //   onUpdate(updated);
+  // };
 
   return (
     <div className="p-6 space-y-6">
@@ -59,10 +59,15 @@ export default function ProductDetail({ productId, onBack, onUpdate }) {
         ) : (
           <>
             <VariantTable
+              productId={productId}
               variants={data.product_variants}
-              onChange={updateVariants}
+              // onChange={updateVariants}
             />
-            <ImageGrid images={data.product_images} onChange={updateImages} />
+            <ImageGrid
+              productId={productId}
+              images={data.product_images}
+              // onChange={updateImages}
+            />
           </>
         )}
       </div>

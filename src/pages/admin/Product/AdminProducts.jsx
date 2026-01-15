@@ -68,11 +68,11 @@ export default function AdminProducts() {
     }
   };
 
-  const handleUpdate = (updatedProduct) => {
-    setProducts((prev) =>
-      prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
-    );
-  };
+  // const handleUpdate = (updatedProduct) => { hàm nay đọc tên kh hiểu
+  //   setProducts((prev) =>
+  //     prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
+  //   );
+  // };
 
   // =========================
   // FILTER LOGIC
@@ -128,7 +128,7 @@ export default function AdminProducts() {
         //  truyền id xuống
         productId={selectedProduct}
         onBack={() => setSelectedProduct(null)}
-        onUpdate={handleUpdate}
+        // onUpdate={handleUpdate} không cần sẽ gọi thẳng ở component con vì dữ liệu đã kh truyền ở đây mà xuống component con call api in ra
       />
     );
   }
