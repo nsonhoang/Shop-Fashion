@@ -11,6 +11,7 @@ import {
 import { Link, NavLink } from "react-router-dom";
 import CartSheet from "@/components/CartSheet";
 import DialogLogin from "@/components/DialogLogin";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Component Link (Dùng chung cho cả Desktop và Mobile)
 const NavItem = ({ to, label, onClick }) => (
@@ -38,7 +39,8 @@ const NavItem = ({ to, label, onClick }) => (
 );
 
 function Header() {
-  const [user, setUser] = useState(true); // cái này để gắn tạp khi user sẽ đc lấy ở context kiểm tra
+  const { user, signOut, role } = useAuth(); // cái này để gắn tạp khi user sẽ đc lấy ở context kiểm tra
+
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isDropMenuOpen, setIsDropMenuOpen] = useState(false);
 
@@ -141,15 +143,21 @@ function Header() {
                       <History className="h-4.5 w-4.5 text-gray-500 group-hover:text-gray-900 transition-colors" />
                       <span>Lịch sử mua hàng</span>
                     </NavLink>
+                    {role === 1 && (
+                      <NavLink
+                        className="flex items-center text-sm gap-2 p-2 hover:bg-gray-100"
+                        to="/admin"
+                      >
+                        <ShieldCheck className="h-4.5 w-4.5 text-gray-500 group-hover:text-gray-900 transition-colors" />
+                        <span>Truy cập trang quản trị</span>
+                      </NavLink>
+                    )}
+
                     <NavLink
-                      className="flex items-center text-sm gap-2 p-2 hover:bg-gray-100"
-                      to="/admin"
-                    >
-                      <ShieldCheck className="h-4.5 w-4.5 text-gray-500 group-hover:text-gray-900 transition-colors" />
-                      <span>Truy cập trang quản trị</span>
-                    </NavLink>
-                    <NavLink
-                      to="/logout"
+                      onClick={() => {
+                        signOut();
+                        setIsDropMenuOpen(false);
+                      }}
                       className="flex items-center text-sm gap-2 p-2 text-red-500 hover:bg-gray-100"
                     >
                       <LogOut className="h-4.5 w-4.5 text-red-500 group-hover:text-gray-900 transition-colors" />
@@ -222,7 +230,10 @@ function Header() {
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <span className="font-bold text-lg tracking-wider">MENU</span>
           <button
-            onClick={() => setIsMobileMenuOpen(false)}
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              signOut();
+            }}
             className="p-2 hover:bg-gray-100 rounded-full"
           >
             <X className="h-6 w-6 text-gray-500" />
@@ -264,7 +275,6 @@ function Header() {
                 Đơn hàng
               </Link>
               <Link
-                to="/logout"
                 className="text-red-500 ml-7"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
