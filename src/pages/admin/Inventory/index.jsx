@@ -1,17 +1,16 @@
-import React, { useState } from "react";
-import { AdminHeader } from "@/layouts/admin/component/header";
-// Import các icon từ lucide-react (hoặc thư viện icon bạn dùng)
+import { useEffect, useState } from "react";
 import {
   Search,
   Package,
   AlertTriangle,
   XCircle,
   CheckCircle2,
+  Edit,
+  Plus,
 } from "lucide-react";
-// Import các component UI (Shadcn UI)
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -23,105 +22,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 
-// --- MOCK DATA (Cấu trúc mới) ---
-export const MOCK_INVENTORY = [
-  {
-    inventory_id: "inv_001",
-    quantity_available: 200,
-    quantity_reserved: 5,
-    updated_at: "2025-01-12T08:00:00Z",
-    variant: {
-      variant_id: "v_001",
-      product_id: "p_001",
-      name: "Áo Thun Basic Cotton",
-      sku: "TSHIRT-WHT-L",
-      size: "L",
-      color: "White",
-      price: 150000,
-      image_url:
-        "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=500&q=60",
-      is_active: true,
-    },
-  },
-  {
-    inventory_id: "inv_002",
-    quantity_available: 15,
-    quantity_reserved: 12,
-    // -> Sellable: 3
-    updated_at: "2025-01-12T10:30:00Z",
-    variant: {
-      variant_id: "v_002",
-      product_id: "p_002",
-      name: "Quần Jean Slim Fit",
-      sku: "JEAN-BLU-32",
-      size: "32",
-      color: "Navy Blue",
-      price: 450000,
-      image_url:
-        "https://images.unsplash.com/photo-1542272617-08f0863200ed?auto=format&fit=crop&w=500&q=60",
-      is_active: true,
-    },
-  },
-  {
-    inventory_id: "inv_003",
-    quantity_available: 0,
-    quantity_reserved: 0,
-    updated_at: "2025-01-10T15:45:00Z",
-    variant: {
-      variant_id: "v_003",
-      product_id: "p_003",
-      name: "Giày Sneaker Sport",
-      sku: "SNK-RED-42",
-      size: "42",
-      color: "Red",
-      price: 1200000,
-      image_url:
-        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=60",
-      is_active: true,
-    },
-  },
-  {
-    inventory_id: "inv_004",
-    quantity_available: 50,
-    quantity_reserved: 0,
-    updated_at: "2025-01-11T09:00:00Z",
-    variant: {
-      variant_id: "v_004",
-      product_id: "p_004",
-      name: "Áo Khoác Bomber Limited",
-      sku: "BOMBER-BLK-M",
-      size: "M",
-      color: "Black",
-      price: 850000,
-      image_url:
-        "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=500&q=60",
-      is_active: true,
-    },
-  },
-  {
-    inventory_id: "inv_005",
-    quantity_available: 100,
-    quantity_reserved: 98,
-    // -> Sellable: 2
-    updated_at: "2025-01-12T11:00:00Z",
-    variant: {
-      variant_id: "v_005",
-      product_id: "p_005",
-      name: "Đầm Dạ Hội Silk",
-      sku: "DRESS-SILK-S",
-      size: "S",
-      color: "Pink",
-      price: 2500000,
-      image_url:
-        "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=500&q=60",
-      is_active: true,
-    },
-  },
-];
+// Import components của bạn
+import { AdminHeader } from "@/layouts/admin/component/header";
+import DialogAddInventory from "./components/DialogAddInventory";
+import { getVariants } from "@/services/productService";
+import { createInventory, getInventories } from "@/services/inventoryService";
 
-// --- HELPER FUNCTIONS ---
-
-// 1. Tính toán trạng thái kho
+// --- LOGIC HELPER ---
 const getStockStatus = (available, reserved) => {
   const sellable = available - reserved;
   if (sellable <= 0)
@@ -135,40 +42,65 @@ const getStockStatus = (available, reserved) => {
     return {
       label: "Sắp hết",
       value: "LOW_STOCK",
-      color: "warning",
+      color: "secondary",
       icon: AlertTriangle,
-    }; // Bạn cần define màu warning trong theme hoặc dùng class text-yellow-500
+    };
   return {
     label: "Còn hàng",
     value: "IN_STOCK",
-    color: "success",
+    color: "default",
     icon: CheckCircle2,
-  }; // define màu success hoặc dùng text-green-500
+  };
 };
 
-// 2. Tính phần trăm hiển thị (Dựa trên Sellable / Total Available)
 const getStockPercentage = (available, reserved) => {
   if (available === 0) return 0;
   const sellable = available - reserved;
   return Math.max(0, Math.min((sellable / available) * 100, 100));
 };
 
+// --- COMPONENT CHÍNH ---
 const InventoryAdminPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Filter Logic: Phải chọc vào item.variant
-  const filteredInventory = MOCK_INVENTORY.filter(
-    (item) =>
-      item.variant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.variant.sku.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // State quản lý Dialog (Gộp chung logic Add/Edit vào 1 state open)
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedInventoryItem, setSelectedInventoryItem] = useState(null); // null = Add, object = Edit
 
-  // Stats Logic: Tính toán động
-  const totalItems = MOCK_INVENTORY.length;
-  const outOfStockItems = MOCK_INVENTORY.filter(
+  const [variantList, setVariantList] = useState([]);
+  const [inventoryList, setInventoryList] = useState([]);
+
+  useEffect(() => {
+    const fetchInventory = async () => {
+      try {
+        const inventories = await getInventories();
+        setInventoryList(inventories || []);
+
+        const variants = await getVariants();
+        setVariantList(variants || []);
+      } catch (error) {
+        console.error("Lỗi khi tải dữ liệu", error.message);
+      }
+    };
+    fetchInventory();
+  }, []);
+
+  // Filter Logic (Fix lỗi null check cho an toàn)
+  const filteredInventory = inventoryList.filter((item) => {
+    const productName = item.product_variants?.products?.name || "";
+    const sku = item.product_variants?.sku || "";
+    return (
+      productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      sku.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
+
+  // Stats Logic
+  const totalItems = inventoryList.length;
+  const outOfStockItems = inventoryList.filter(
     (i) => i.quantity_available - i.quantity_reserved <= 0
   ).length;
-  const lowStockItems = MOCK_INVENTORY.filter((i) => {
+  const lowStockItems = inventoryList.filter((i) => {
     const sellable = i.quantity_available - i.quantity_reserved;
     return sellable > 0 && sellable < 10;
   }).length;
@@ -192,13 +124,55 @@ const InventoryAdminPage = () => {
       icon: XCircle,
       color: "text-red-600",
     },
-    {
-      title: "Giá trị kho",
-      value: "Calculating...",
-      icon: Package,
-      color: "text-green-600",
-    }, // Có thể tính tổng tiền nếu cần
   ];
+
+  // --- HANDLERS ---
+
+  // 1. Mở dialog Thêm mới
+  const handleOpenAdd = () => {
+    setSelectedInventoryItem(null); // Reset về null để Dialog hiểu là Add
+    setOpenDialog(true);
+  };
+
+  // 2. Mở dialog Sửa
+  const handleOpenEdit = (item) => {
+    console.log("Editing item:", item);
+    // Map data từ bảng vào form
+    setSelectedInventoryItem({
+      inventory_id: item.inventory_id,
+      variant_id: item.product_variants.variant_id, // Lấy đúng ID variant
+      quantity_available: item.quantity_available,
+      quantity_reserved: item.quantity_reserved,
+    });
+    setOpenDialog(true);
+  };
+
+  // 3. Hàm xử lý chung cho cả Thêm và Sửa (Gọn gàng hơn)
+  const handleSaveInventory = async (data) => {
+    console.log("Submitting data:", data);
+    try {
+      if (selectedInventoryItem) {
+        // --- LOGIC UPDATE (SỬA) ---
+        // Gọi API update ở đây (ví dụ: await updateInventory(data))
+        // console.log("Gọi API update...");
+        // Sau khi update xong, update state inventoryList:
+        // setInventoryList(prev => prev.map(item => item.inventory_id === data.inventory_id ? newData : item));
+        alert("Chức năng Update đang chờ API");
+      } else {
+        // --- LOGIC CREATE (THÊM MỚI) ---
+        const newInventory = await createInventory(data);
+        // Add vào list hiển thị ngay
+        setInventoryList((prev) => [...prev, newInventory]);
+      }
+
+      setOpenDialog(false); // Đóng Dialog khi thành công
+    } catch (error) {
+      console.error("Lỗi khi lưu dữ liệu", error.message);
+      alert(
+        "Có lỗi xảy ra khi lưu dữ liệu kho hàng, có thể sản phẩm đã được thêm nên nên cập nhật số lượng"
+      );
+    }
+  };
 
   return (
     <div>
@@ -206,7 +180,7 @@ const InventoryAdminPage = () => {
 
       <div className="p-6 space-y-6">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {stats.map((stat) => (
             <Card key={stat.title}>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -233,7 +207,11 @@ const InventoryAdminPage = () => {
               className="pl-9"
             />
           </div>
-          <Button>Nhập kho</Button>
+
+          <Button onClick={handleOpenAdd}>
+            <Plus className="mr-2 h-4 w-4" /> Nhập kho
+          </Button>
+
           <Button variant="outline">Xuất Excel</Button>
         </div>
 
@@ -243,110 +221,139 @@ const InventoryAdminPage = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[100px]">Hình ảnh</TableHead>
+                  <TableHead className="w-[80px]">Hình ảnh</TableHead>
                   <TableHead>SKU / Tên sản phẩm</TableHead>
-                  <TableHead>Phân loại</TableHead>
-                  <TableHead>Tình trạng kho (Khả dụng / Tổng)</TableHead>
+                  <TableHead>Thông tin</TableHead>
+                  <TableHead>Tình trạng kho</TableHead>
                   <TableHead>Trạng thái</TableHead>
                   <TableHead className="text-right">Giá bán</TableHead>
+                  <TableHead className="text-center w-[80px]">
+                    Hành động
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredInventory.map((item) => {
-                  const sellable =
-                    item.quantity_available - item.quantity_reserved;
-                  const statusInfo = getStockStatus(
-                    item.quantity_available,
-                    item.quantity_reserved
-                  );
+                {filteredInventory.length > 0 ? (
+                  filteredInventory.map((item) => {
+                    // Safety check để tránh crash nếu data thiếu
+                    const variant = item.product_variants || {};
+                    const product = variant.products || {};
 
-                  return (
-                    <TableRow key={item.inventory_id}>
-                      <TableCell>
-                        <img
-                          src={item.variant.image_url}
-                          alt={item.variant.name}
-                          className="w-12 h-12 rounded object-cover border"
-                        />
-                      </TableCell>
+                    const sellable =
+                      (item.quantity_available || 0) -
+                      (item.quantity_reserved || 0);
+                    const statusInfo = getStockStatus(
+                      item.quantity_available || 0,
+                      item.quantity_reserved || 0
+                    );
 
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="font-bold text-xs text-muted-foreground">
-                            {item.variant.sku}
-                          </span>
-                          <span className="font-medium">
-                            {item.variant.name}
-                          </span>
-                        </div>
-                      </TableCell>
+                    return (
+                      <TableRow key={item.inventory_id}>
+                        <TableCell>
+                          <img
+                            src={variant.image_url || "https://placehold.co/50"}
+                            alt={product.name || "Product"}
+                            className="w-10 h-10 rounded object-cover border"
+                          />
+                        </TableCell>
 
-                      <TableCell>
-                        <div className="text-sm">
-                          Size:{" "}
-                          <span className="font-semibold">
-                            {item.variant.size}
-                          </span>{" "}
-                          | Màu:{" "}
-                          <span className="font-semibold">
-                            {item.variant.color}
-                          </span>
-                        </div>
-                      </TableCell>
-
-                      <TableCell className="w-[250px]">
-                        <div className="flex flex-col gap-1">
-                          <div className="flex justify-between text-xs">
-                            <span>
-                              Khả dụng: <b>{sellable}</b>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="font-bold text-xs text-muted-foreground">
+                              {variant.sku || "N/A"}
                             </span>
-                            <span className="text-muted-foreground">
-                              Tổng: {item.quantity_available}
+                            <span className="font-medium text-sm">
+                              {product.name || "Unknown Product"}
                             </span>
                           </div>
-                          {/* Progress bar thể hiện % hàng còn bán được so với tổng kho */}
-                          <Progress
-                            value={getStockPercentage(
-                              item.quantity_available,
-                              item.quantity_reserved
+                        </TableCell>
+
+                        <TableCell>
+                          <div className="text-xs text-muted-foreground">
+                            <div>
+                              Size:{" "}
+                              <b className="text-foreground">{variant.size}</b>
+                            </div>
+                            <div>
+                              Màu:{" "}
+                              <b className="text-foreground">{variant.color}</b>
+                            </div>
+                          </div>
+                        </TableCell>
+
+                        <TableCell className="w-[250px]">
+                          <div className="flex flex-col gap-1">
+                            <div className="flex justify-between text-xs">
+                              <span className="font-semibold text-primary">
+                                Khả dụng: {sellable}
+                              </span>
+                              <span className="text-muted-foreground">
+                                Tổng: {item.quantity_available}
+                              </span>
+                            </div>
+                            <Progress
+                              value={getStockPercentage(
+                                item.quantity_available || 0,
+                                item.quantity_reserved || 0
+                              )}
+                              className="h-1.5"
+                            />
+                            {item.quantity_reserved > 0 && (
+                              <span className="text-[10px] text-orange-600 font-medium">
+                                Đang giữ: {item.quantity_reserved}
+                              </span>
                             )}
-                            className="h-2"
-                            // Bạn có thể custom màu progress bar dựa trên statusInfo.value
-                          />
-                          <span className="text-[10px] text-muted-foreground">
-                            (Đang giữ: {item.quantity_reserved})
-                          </span>
-                        </div>
-                      </TableCell>
+                          </div>
+                        </TableCell>
 
-                      <TableCell>
-                        <Badge
-                          variant={
-                            statusInfo.value === "IN_STOCK"
-                              ? "default"
-                              : statusInfo.value === "LOW_STOCK"
-                              ? "secondary"
-                              : "destructive"
-                          }
-                        >
-                          {statusInfo.label}
-                        </Badge>
-                      </TableCell>
+                        <TableCell>
+                          <Badge variant={statusInfo.color}>
+                            {statusInfo.label}
+                          </Badge>
+                        </TableCell>
 
-                      <TableCell className="text-right font-medium">
-                        {new Intl.NumberFormat("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                        }).format(item.variant.price)}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                        <TableCell className="text-right font-medium text-sm">
+                          {new Intl.NumberFormat("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
+                          }).format(variant.price_adjustment || 0)}
+                        </TableCell>
+
+                        <TableCell className="text-center">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleOpenEdit(item)}
+                          >
+                            <Edit className="h-4 w-4 text-muted-foreground hover:text-primary" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8">
+                      Không tìm thấy sản phẩm nào trong kho.
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </CardContent>
         </Card>
       </div>
+
+      {/* --- DIALOG COMPONENT (Chỉ cần 1 cái duy nhất) --- */}
+      {openDialog && (
+        <DialogAddInventory
+          open={openDialog}
+          onOpenChange={setOpenDialog}
+          onSubmit={handleSaveInventory} // Dùng chung hàm save
+          variants={variantList}
+          initialData={selectedInventoryItem} // Truyền data để Dialog biết là Edit hay Add
+        />
+      )}
     </div>
   );
 };

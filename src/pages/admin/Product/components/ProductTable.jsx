@@ -16,6 +16,7 @@ const statusStyle = {
 };
 
 export default function ProductTable({ products, onManage }) {
+  console.log("Product Table Products:", products);
   return (
     <Table>
       <TableHeader>
@@ -32,7 +33,7 @@ export default function ProductTable({ products, onManage }) {
         {products.map((p) => (
           <TableRow key={p.product_id}>
             <TableCell className="font-medium">{p.name}</TableCell>
-            <TableCell>{p.category}</TableCell>
+            <TableCell>{p.categories.name}</TableCell>
             <TableCell>{formatMoney(p.base_price)}</TableCell>
             <TableCell>
               <Badge className={statusStyle[p.is_active]}>

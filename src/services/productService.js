@@ -15,18 +15,30 @@ export const createProduct = async (newProduct) => {
     throw error;
   }
 };
-
-export const getProducts = async () => {
+export const getProducts = async (page = 1, limit = 10) => {
   try {
-    const { data, error } = await supabase.from("products").select();
+    // 1. Tính toán vị trí bắt đầu (from) và kết thúc (to)
+    // Ví dụ: Trang 1 (0-9), Trang 2 (10-19)...
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    const { data, error, count } = await supabase
+      .from("products")
+      .select("*, categories(*)", { count: "exact" }) // Thêm option count: 'exact'
+      .range(from, to) // Giới hạn dữ liệu trả về
+      .order("created_at", { ascending: false }); // Sắp xếp mới nhất lên đầu
+
     if (error) throw error;
-    return data;
+
+    // Trả về cả dữ liệu và tổng số lượng
+    return { data, total: count };
   } catch (error) {
     console.error("Lỗi khi lấy danh sách sản phẩm:", error.message);
     throw error;
   }
 };
 
+// laasy thoong tin cuar 3 banrg
 export const getDetailProductById = async (id) => {
   try {
     const { data, error } = await supabase
@@ -118,6 +130,17 @@ export const createVariant = async (variant) => {
     return data;
   } catch (error) {
     console.error("Lỗi khi thêm biến thể sản phẩm:", error.message);
+    throw error;
+  }
+};
+export const getVariants = async () => {
+  try {
+    const { data, error } = await supabase.from("product_variants").select();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách biến thể sản phẩm:", error.message);
     throw error;
   }
 };
