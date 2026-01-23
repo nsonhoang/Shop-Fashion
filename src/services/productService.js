@@ -55,6 +55,33 @@ export const getDetailProductById = async (id) => {
     throw error;
   }
 };
+const getReviewsByProductId = async (productId) => {
+  try {
+    const { data, error } = await supabase
+      .from("reviews")
+      .select("*, profiles(full_name, avatar_url)")
+      .eq("product_id", productId)
+      .order("created_at", { ascending: false }) // Sắp xếp mới nhất lên đầu
+      .limit(5);
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Lỗi khi lấy đánh giá sản phẩm:", error.message);
+    throw error;
+  }
+};
+
+export const getDetailProductAndReViewById = async (id) => {
+  try {
+    const product = await getDetailProductById(id);
+    const reviews = await getReviewsByProductId(id);
+    return { product, reviews };
+  } catch (error) {
+    console.error("Lỗi khi lấy chi tiết sản phẩm và đánh giá:", error.message);
+    throw error;
+  }
+};
 
 export const createImageProduct = async (dataImage) => {
   try {
