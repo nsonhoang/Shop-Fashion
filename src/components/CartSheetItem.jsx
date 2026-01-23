@@ -2,68 +2,112 @@ import { formatMoney } from "@/utils/formatMoney";
 import { Button } from "./ui/button";
 import { Trash2 } from "lucide-react";
 import { QuantitySelector } from "./QuantitySelector";
+import { supabase } from "@/lib/supabase";
 import { useState } from "react";
 
-function CartSheetItem({ cartItem }) {
-  const [quantity, setQuantity] = useState(cartItem.quantity);
+function CartSheetItem({ cartItem, handleDelete }) {
+  // Trạng thái loading để tránh spam nút bấm
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  const handleDecrease = (quantity) => {
-    if (quantity > 1) {
-      const newQuantity = quantity - 1;
-      setQuantity(newQuantity);
+  // Dựa trên cấu trúc JSON bạn gửi
+  const variant = cartItem.product_variants || {};
+  const product = variant.products || {}; // Lấy tên sản phẩm từ bảng products (nếu có join)
+
+  // Các thông tin hiển thị
+  const productName = product.name || "Sản phẩm chưa đặt tên";
+  const imageUrl = variant.image_url || "https://placehold.co/100";
+  const size = variant.size || "-";
+  const color = variant.color || "-";
+
+  // Giá: Theo yêu cầu của bạn, chỉ lấy price_adjustment
+  const unitPrice = Number(variant.price_adjustment) || 0;
+
+  // --- 2. HÀM CẬP NHẬT SỐ LƯỢNG LÊN SUPABASE ---
+  const updateQuantity = async (newQuantity) => {
+    if (newQuantity < 1 || isUpdating) return;
+
+    setIsUpdating(true);
+    try {
+      const { error } = await supabase
+        .from("cart_items")
+        .update({ quantity: newQuantity })
+        .eq("cart_item_id", cartItem.cart_item_id);
+
+      if (error) throw error;
+      // Không cần setQuantity local, Realtime bên CartSheet sẽ tự update lại UI
+    } catch (error) {
+      console.error("Lỗi cập nhật số lượng:", error);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
-  const handleIncrease = (quantity) => {
-    const newQuantity = quantity + 1;
-    setQuantity(newQuantity);
+  // --- 3. HÀM XÓA SẢN PHẨM ---
+  const handleRemoveItem = async () => {
+    if (!confirm("Bạn có chắc muốn xóa sản phẩm này?")) return;
+
+    try {
+      const { error } = await supabase
+        .from("cart_items")
+        .delete()
+        .eq("cart_item_id", cartItem.cart_item_id);
+      // Gọi hàm handleDelete từ props để cập nhật UI bên ngoài
+      handleDelete(cartItem.cart_item_id);
+      if (error) throw error;
+    } catch (error) {
+      console.error("Lỗi xóa sản phẩm:", error);
+    }
   };
 
   return (
-    <div className="flex flex-col mb-4 ">
-      {/* item riêng trc đã  */}
-      <div className="flex flex-row w-full h-25 px-2  ">
-        {/* hình ảnh sản phẩm */}
-        <div className="">
+    <div className="flex flex-col mb-4 border-b pb-4 last:border-b-0">
+      <div className="flex flex-row w-full h-24 px-1 gap-3">
+        {/* HÌNH ẢNH SẢN PHẨM */}
+        <div className="w-20 h-24 flex-shrink-0 border rounded-md overflow-hidden bg-gray-50">
           <img
-            src={cartItem.variant_image}
-            alt={cartItem.name}
-            className="h-full w-18 object-cover"
+            src={imageUrl}
+            alt={productName}
+            className="h-full w-full object-cover"
           />
         </div>
-        {/*thông tin chi tiết  */}
-        <div className="flex flex-col justify-between w-full px-2 py-1">
-          {/* Thê tên và nút thùng rác */}
-          <div className="flex flex-row justify-between w-full  ">
-            {/* tên */}
-            <div className="flex flex-col ">
-              <h3 className="font-semibold">{cartItem.product.name}</h3>
-              <span className="text-sm text-gray-500">
-                {cartItem.size} | {cartItem.color}
+
+        {/* THÔNG TIN CHI TIẾT */}
+        <div className="flex flex-col justify-between w-full py-1">
+          {/* Tên và Nút xóa */}
+          <div className="flex flex-row justify-between w-full items-start">
+            <div className="flex flex-col pr-2">
+              <h3 className="font-semibold text-sm line-clamp-2 leading-tight">
+                {productName}
+              </h3>
+              <span className="text-xs text-muted-foreground mt-1">
+                Size: {size} | Màu: {color}
               </span>
             </div>
-            {/* nút thùng rác */}
-            <div className="flex items-center">
-              <Button className="p-1 bg-white text-muted-foreground hover:text-red-500 hover:bg-white">
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-red-600 hover:bg-red-50 -mt-1 -mr-1"
+              onClick={handleRemoveItem}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
-          {/* bảng giá và chọn số lượng */}
-          <div className="flex flex-row w-full justify-between items-center">
-            {/* giá */}
-            <div className="">
-              <span className="">
-                {formatMoney(
-                  cartItem.product.base_price + cartItem.price_adjustment
-                )}
+
+          {/* Giá và Bộ chọn số lượng */}
+          <div className="flex flex-row w-full justify-between items-end mt-2">
+            <div className="flex flex-col">
+              <span className="font-bold text-sm">
+                {formatMoney(unitPrice)}
               </span>
             </div>
-            <div className="">
+
+            <div className="transform scale-90 origin-bottom-right">
               <QuantitySelector
-                value={quantity}
-                onDecrease={() => handleDecrease(quantity)}
-                onIncrease={() => handleIncrease(quantity)}
+                value={cartItem.quantity} // Dùng trực tiếp props
+                onDecrease={() => updateQuantity(cartItem.quantity - 1)}
+                onIncrease={() => updateQuantity(cartItem.quantity + 1)}
+                disabled={isUpdating} // Khóa nút khi đang gửi request
               />
             </div>
           </div>

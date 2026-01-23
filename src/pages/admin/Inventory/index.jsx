@@ -26,7 +26,11 @@ import { Progress } from "@/components/ui/progress";
 import { AdminHeader } from "@/layouts/admin/component/header";
 import DialogAddInventory from "./components/DialogAddInventory";
 import { getVariants } from "@/services/productService";
-import { createInventory, getInventories } from "@/services/inventoryService";
+import {
+  createInventory,
+  getInventories,
+  updateInventoryById,
+} from "@/services/inventoryService";
 
 // --- LOGIC HELPER ---
 const getStockStatus = (available, reserved) => {
@@ -98,7 +102,7 @@ const InventoryAdminPage = () => {
   // Stats Logic
   const totalItems = inventoryList.length;
   const outOfStockItems = inventoryList.filter(
-    (i) => i.quantity_available - i.quantity_reserved <= 0
+    (i) => i.quantity_available - i.quantity_reserved <= 0,
   ).length;
   const lowStockItems = inventoryList.filter((i) => {
     const sellable = i.quantity_available - i.quantity_reserved;
@@ -157,7 +161,18 @@ const InventoryAdminPage = () => {
         // console.log("Gọi API update...");
         // Sau khi update xong, update state inventoryList:
         // setInventoryList(prev => prev.map(item => item.inventory_id === data.inventory_id ? newData : item));
-        alert("Chức năng Update đang chờ API");
+        const updatedInventory = await updateInventoryById(
+          selectedInventoryItem.inventory_id,
+          data,
+        );
+        setInventoryList((prev) =>
+          prev.map((item) =>
+            item.inventory_id === updatedInventory.inventory_id
+              ? updatedInventory
+              : item,
+          ),
+        );
+        alert("Cập nhật kho hàng thành công!");
       } else {
         // --- LOGIC CREATE (THÊM MỚI) ---
         const newInventory = await createInventory(data);
@@ -169,7 +184,7 @@ const InventoryAdminPage = () => {
     } catch (error) {
       console.error("Lỗi khi lưu dữ liệu", error.message);
       alert(
-        "Có lỗi xảy ra khi lưu dữ liệu kho hàng, có thể sản phẩm đã được thêm nên nên cập nhật số lượng"
+        "Có lỗi xảy ra khi lưu dữ liệu kho hàng, có thể sản phẩm đã được thêm nên nên cập nhật số lượng",
       );
     }
   };
@@ -244,7 +259,7 @@ const InventoryAdminPage = () => {
                       (item.quantity_reserved || 0);
                     const statusInfo = getStockStatus(
                       item.quantity_available || 0,
-                      item.quantity_reserved || 0
+                      item.quantity_reserved || 0,
                     );
 
                     return (
@@ -294,7 +309,7 @@ const InventoryAdminPage = () => {
                             <Progress
                               value={getStockPercentage(
                                 item.quantity_available || 0,
-                                item.quantity_reserved || 0
+                                item.quantity_reserved || 0,
                               )}
                               className="h-1.5"
                             />

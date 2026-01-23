@@ -24,7 +24,7 @@ import {
 // 1. Helper Format Tiền tệ
 const formatCurrency = (value) =>
   new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
-    value || 0
+    value || 0,
   );
 
 // 2. Helper Format Ngày tháng

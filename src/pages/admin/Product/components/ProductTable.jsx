@@ -9,6 +9,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatMoney } from "@/utils/formatMoney";
+import { useState } from "react";
+import DialogDetailProduct from "./DialogDetailProduct";
 
 const statusStyle = {
   true: "!bg-green-100 !text-green-700 border border-green-300",
@@ -17,6 +19,14 @@ const statusStyle = {
 
 export default function ProductTable({ products, onManage }) {
   console.log("Product Table Products:", products);
+  const [isProductDetailOpen, setIsProductDetailOpen] = useState(null);
+
+  const handleViewDetail = (product) => {
+    console.log("View details for product:", product);
+
+    setIsProductDetailOpen(product);
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -40,15 +50,32 @@ export default function ProductTable({ products, onManage }) {
                 {p.is_active ? "Active" : "Disabled"}
               </Badge>
             </TableCell>
-            <TableCell className="text-center">
+            <TableCell className="flex flex-row justify-center gap-2">
               {/* tuyền xuống bằng id rồi call lấy dữ liệu trong đây */}
               <Button size="sm" onClick={() => onManage(p.product_id)}>
-                Manage
+                Các biến thể
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleViewDetail(p)}
+              >
+                Chi tiết
+              </Button>
+              <Button size="sm" variant="destructive">
+                Xóa
               </Button>
             </TableCell>
           </TableRow>
         ))}
       </TableBody>
+      {isProductDetailOpen && (
+        <DialogDetailProduct
+          open={isProductDetailOpen}
+          product={isProductDetailOpen}
+          onClose={() => setIsProductDetailOpen(null)}
+        />
+      )}
     </Table>
   );
 }
