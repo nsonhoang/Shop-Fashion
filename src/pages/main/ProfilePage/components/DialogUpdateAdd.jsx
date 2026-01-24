@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -10,38 +11,71 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
+import { useEffect, useState } from "react"; // 1. Import useEffect
+import { createAddress, updateAddress } from "@/services/addressService";
 
-function DialogUpdateAdd({ address, isEdit, children }) {
+// Nhớ nhận prop isDefault ở đây
+function DialogUpdateAdd({ isDefault, address, isEdit, children, onSuccess }) {
+  const [open, setOpen] = useState(false);
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    control,
+    // formState: { errors },
+    reset, // 2. Lấy hàm reset ra
   } = useForm({
     defaultValues: {
-      street: address?.street || "",
-      city: address?.city || "",
+      street: "",
+      city: "",
+      is_default: false,
     },
   });
 
+  // 3. Dùng useEffect để cập nhật Form khi prop thay đổi
+  useEffect(() => {
+    // Nếu có address (Sửa) -> Lấy từ address
+    // Nếu không (Thêm) -> Lấy từ biến isDefault truyền vào (mặc định false)
+    const defaultVal = address ? address.is_default : isDefault || false;
+
+    reset({
+      street: address?.street || "",
+      city: address?.city || "",
+      is_default: defaultVal,
+    });
+  }, [address, isDefault, reset]); // Chạy lại khi address hoặc isDefault đổi
+
   const onSubmit = (data) => {
     if (isEdit) {
-      // Call API to update address
-      console.log(
-        "Updating address ID:",
-        address.address_id,
-        "with data:",
-        data
-      );
+      try {
+        const response = updateAddress(address.address_id, data);
+        console.log("Form Data:", response);
+        if (onSuccess) {
+          onSuccess(response);
+        }
+      } catch (error) {
+        console.error("Error updating address:", error);
+        alert("Có lỗi xảy ra khi cập nhật địa chỉ.");
+      } finally {
+        setOpen(false);
+      }
     } else {
-      // Call API to add new address
-      console.log("Adding new address with data:", data);
+      try {
+        const response = createAddress(data);
+        if (onSuccess) {
+          onSuccess(response);
+        }
+      } catch (error) {
+        console.error("Error creating address:", error);
+        alert("Có lỗi xảy ra khi thêm địa chỉ.");
+      } finally {
+        setOpen(false);
+      }
     }
-    // Consider closing the dialog on submit
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
 
       <DialogContent className="sm:max-w-[500px]">
@@ -56,7 +90,9 @@ function DialogUpdateAdd({ address, isEdit, children }) {
                 : "Nhập thông tin địa chỉ mới vào bên dưới."}
             </DialogDescription>
           </DialogHeader>
+
           <div className="grid gap-4 py-4">
+            {/* ... Các input Street, City giữ nguyên ... */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="street" className="text-right">
                 Đường
@@ -64,14 +100,9 @@ function DialogUpdateAdd({ address, isEdit, children }) {
               <div className="col-span-3">
                 <Input
                   id="street"
-                  {...register("street", { required: "Đường là bắt buộc" })}
+                  {...register("street", { required: true })}
                   className="w-full"
                 />
-                {errors.street && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {errors.street.message}
-                  </p>
-                )}
               </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
@@ -81,17 +112,33 @@ function DialogUpdateAdd({ address, isEdit, children }) {
               <div className="col-span-3">
                 <Input
                   id="city"
-                  {...register("city", { required: "Thành phố là bắt buộc" })}
+                  {...register("city", { required: true })}
                   className="w-full"
                 />
-                {errors.city && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {errors.city.message}
-                  </p>
-                )}
+              </div>
+            </div>
+
+            {/* Checkbox */}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <div className="col-span-1"></div>
+              <div className="col-span-3 flex items-center space-x-2">
+                <Controller
+                  name="is_default"
+                  control={control}
+                  render={({ field }) => (
+                    <Checkbox
+                      id="is_default"
+                      // Quan trọng: Đảm bảo checked luôn là boolean (tránh null/undefined)
+                      checked={!!field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  )}
+                />
+                <Label htmlFor="is_default">Đặt làm địa chỉ mặc định</Label>
               </div>
             </div>
           </div>
+
           <DialogFooter>
             <Button type="submit">{isEdit ? "Cập nhật" : "Thêm"}</Button>
           </DialogFooter>
