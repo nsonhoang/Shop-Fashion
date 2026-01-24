@@ -8,7 +8,7 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import CartSheet from "@/components/CartSheet";
 import DialogLogin from "@/components/DialogLogin";
 import { useAuth } from "@/contexts/AuthContext";
@@ -41,8 +41,10 @@ const NavItem = ({ to, label, onClick }) => (
 function Header() {
   const { user, signOut, role } = useAuth(); // cái này để gắn tạp khi user sẽ đc lấy ở context kiểm tra
 
+  const [searchTerm, setSearchTerm] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isDropMenuOpen, setIsDropMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   // State mới cho Mobile Menu
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -62,11 +64,23 @@ function Header() {
     setIsDropMenuOpen(!isDropMenuOpen);
   };
 
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    const cleanSearch = searchTerm.trim();
+    if (!cleanSearch) return;
+
+    // Chỉ cần search và reset về trang 1.
+    // KHÔNG truyền gender vào nữa.
+    navigate(`/products?search=${encodeURIComponent(cleanSearch)}&page=1`);
+  };
   const navLinks = [
-    { to: "/women", label: "Women" },
-    { to: "/", label: "Man" },
-    { to: "/about", label: "About" },
-    { to: "/story", label: "Story" },
+    { to: "/women", label: "Nữ" },
+    { to: "/", label: "Nam" },
+    { to: "/about", label: "Giới thiệu" },
+    { to: "/story", label: "Câu chuyện" },
   ];
 
   return (
@@ -193,21 +207,32 @@ function Header() {
               }
             `}
           >
-            <div className="container mx-auto max-w-4xl flex items-center gap-4">
+            {/* thanh tìm kiếm */}
+            {/* 1. Đổi div thành form và thêm onSubmit */}
+            <form
+              onSubmit={handleSearchSubmit}
+              className="container mx-auto max-w-4xl flex items-center gap-4"
+            >
               <Search className="h-5 w-5 text-gray-400" />
+
               <input
                 type="text"
                 placeholder="Search products..."
                 autoFocus={isSearchOpen}
+                value={searchTerm}
+                onChange={handleSearchChange} // Vẫn giữ onChange để cập nhật state
                 className="flex-1 bg-gray-100 rounded-md px-4 py-2 text-sm outline-none placeholder:text-gray-500 focus:bg-gray-50 transition-colors"
               />
+
               <button
+                /* 2. BẮT BUỘC: Thêm type="button" để không bị submit nhầm khi bấm Cancel */
+                type="button"
                 onClick={() => setIsSearchOpen(false)}
                 className="text-sm font-medium text-gray-500 hover:text-black transition-colors"
               >
                 Cancel
               </button>
-            </div>
+            </form>
           </div>
         </div>
       </header>
