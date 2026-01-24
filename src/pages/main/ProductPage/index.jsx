@@ -209,7 +209,7 @@ const ProductPage = () => {
             <img
               src={
                 sortedImages[selectedImageIndex]?.image_url ||
-                "https://placehold.co/600x800"
+                selectedProduct.product_variants[0]?.image_url
               }
               alt={selectedProduct.name}
               className="w-full h-full object-cover animate-fade-in"

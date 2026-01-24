@@ -5,7 +5,7 @@ import MainLayout from "../src/layouts/main/index.jsx";
 import Loading from "./components/Loading";
 import { AdminLayout } from "./layouts/admin/index.jsx";
 import { List } from "lucide-react";
-import ListProductPage from "./pages/main/ListProduct/listProduct.jsx";
+import ListProductPage from "./pages/main/ListProduct/ListProductPage.jsx";
 import { adminLoader } from "./utils/authLoader.js";
 
 // 2. Định nghĩa Lazy Import (Code splitting)
@@ -17,35 +17,35 @@ const StoryPage = React.lazy(() => import("@/pages/main/Story"));
 const ProductPage = React.lazy(() => import("@/pages/main/ProductPage"));
 const OrderHistory = React.lazy(() => import("@/pages/main/OrderHistory"));
 const ProfilePage = React.lazy(() => import("@/pages/main/ProfilePage"));
-const RegisterSuccessPage = React.lazy(() =>
-  import("@/pages/main/RegisterSuccessPage")
+const RegisterSuccessPage = React.lazy(
+  () => import("@/pages/main/RegisterSuccessPage"),
 );
 
-const EmailConfirmationPage = React.lazy(() =>
-  import("@/pages/main/EmailConfirmationPage")
+const EmailConfirmationPage = React.lazy(
+  () => import("@/pages/main/EmailConfirmationPage"),
 );
 const ErrorPage = React.lazy(() => import("@/pages/main/Error"));
 const Dashboard = React.lazy(() => import("@/pages/admin/Dashboard"));
-const ProductAdminPage = React.lazy(() =>
-  import("@/pages/admin/Product/AdminProducts.jsx")
+const ProductAdminPage = React.lazy(
+  () => import("@/pages/admin/Product/AdminProducts.jsx"),
 );
-const CategoriesAdminPage = React.lazy(() =>
-  import("@/pages/admin/Categories/index.jsx")
+const CategoriesAdminPage = React.lazy(
+  () => import("@/pages/admin/Categories/index.jsx"),
 );
-const CustomersAdminPage = React.lazy(() =>
-  import("@/pages/admin/Customers/index.jsx")
+const CustomersAdminPage = React.lazy(
+  () => import("@/pages/admin/Customers/index.jsx"),
 );
-const InventoryAdminPage = React.lazy(() =>
-  import("@/pages/admin/Inventory/index.jsx")
+const InventoryAdminPage = React.lazy(
+  () => import("@/pages/admin/Inventory/index.jsx"),
 );
-const AnalyticsAdminPage = React.lazy(() =>
-  import("@/pages/admin/Analytics/index.jsx")
+const AnalyticsAdminPage = React.lazy(
+  () => import("@/pages/admin/Analytics/index.jsx"),
 );
-const SettingsAdminPage = React.lazy(() =>
-  import("@/pages/admin/Settings/index.jsx")
+const SettingsAdminPage = React.lazy(
+  () => import("@/pages/admin/Settings/index.jsx"),
 );
-const OrdersAdminPage = React.lazy(() =>
-  import("@/pages/admin/Orders/index.jsx")
+const OrdersAdminPage = React.lazy(
+  () => import("@/pages/admin/Orders/index.jsx"),
 );
 
 const router = createBrowserRouter([

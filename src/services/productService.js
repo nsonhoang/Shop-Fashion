@@ -205,3 +205,46 @@ export const deleteVariantById = async (id) => {
     throw error;
   }
 };
+
+export const getListProductByParams = async (params) => {
+  const { category, gender, search, page = 1, limit = 30 } = params;
+
+  // Tính toán vị trí bắt đầu và kết thúc (Supabase tính index từ 0)
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  try {
+    let query = supabase
+      .from("products")
+      // { count: "exact" } giúp lấy tổng số lượng sản phẩm thỏa mãn điều kiện
+      .select(
+        "*, categories!inner(*), product_images(*), product_variants(*)",
+        { count: "exact" },
+      );
+
+    // --- CÁC BỘ LỌC GIỮ NGUYÊN ---
+    if (category && category !== "all") {
+      query = query.eq("categories.slug", category);
+    }
+    if (gender) {
+      query = query.eq("gender", gender.toUpperCase());
+    }
+    if (search) {
+      query = query.ilike("name", `%${search}%`);
+    }
+
+    // --- PHÂN TRANG (MỚI THÊM) ---
+    // Sắp xếp sản phẩm mới nhất lên đầu (tùy chọn)
+    query = query.order("created_at", { ascending: false }).range(from, to);
+
+    const { data, count, error } = await query;
+
+    if (error) throw error;
+
+    // Trả về cả danh sách data và tổng số lượng count
+    return { data, count };
+  } catch (error) {
+    console.error("Lỗi lấy danh sách sản phẩm:", error.message);
+    throw error;
+  }
+};
