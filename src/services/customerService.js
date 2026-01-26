@@ -61,3 +61,34 @@ export const updateRoleById = async (userId, newRole) => {
     throw error;
   }
 };
+export const getUserById = async (userId) => {
+  try {
+    const { data: user, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
+
+    if (error) throw error;
+
+    return user;
+  } catch (error) {
+    console.error("Lỗi khi lấy thông tin người dùng:", error.message);
+    throw error;
+  }
+};
+export const updateUserById = async (userId, updatedData) => {
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .update(updatedData)
+      .eq("id", userId);
+
+    if (error) throw error;
+
+    return data;
+  } catch (error) {
+    console.error("Lỗi khi cập nhật thông tin người dùng:", error.message);
+    throw error;
+  }
+};

@@ -7,6 +7,7 @@ import { AdminLayout } from "./layouts/admin/index.jsx";
 import { List } from "lucide-react";
 import ListProductPage from "./pages/main/ListProduct/ListProductPage.jsx";
 import { adminLoader } from "./utils/authLoader.js";
+import { Toaster } from "sonner";
 
 // 2. Định nghĩa Lazy Import (Code splitting)
 
@@ -20,7 +21,7 @@ const ProfilePage = React.lazy(() => import("@/pages/main/ProfilePage"));
 const RegisterSuccessPage = React.lazy(
   () => import("@/pages/main/RegisterSuccessPage"),
 );
-
+const OrderSuccessPage = React.lazy(() => import("@/pages/main/OrderSuccess"));
 const EmailConfirmationPage = React.lazy(
   () => import("@/pages/main/EmailConfirmationPage"),
 );
@@ -95,6 +96,10 @@ const router = createBrowserRouter([
         path: "email-confirmation",
         element: <EmailConfirmationPage />,
       },
+      {
+        path: "order-success/:id",
+        element: <OrderSuccessPage />,
+      },
     ],
     // --- KẾT THÚC: Route trung gian ---
   },
@@ -143,7 +148,12 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <RouterProvider router={router} />;
+      <Toaster position="top-center" richColors />
+    </>
+  );
 }
 
 export default App;

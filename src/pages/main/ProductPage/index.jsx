@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { getDetailProductAndReViewById } from "@/services/productService";
 import { useAuth } from "@/contexts/AuthContext";
 import { addCartItemToCart, getCartsByUserId } from "@/services/cartService";
+import { toast } from "sonner";
 
 // Dữ liệu giả lập relatedProducts
 export const relatedProducts = [
@@ -165,7 +166,7 @@ const ProductPage = () => {
       setTimeout(() => setShowAlertSuccess(false), 3000);
     } catch (error) {
       console.error("Lỗi khi thêm vào giỏ hàng:", error);
-      alert("Lỗi mạng hoặc sản phẩm đã có trong giỏ hàng");
+      toast.error("Lỗi khi thêm vào giỏ hàng hoặc ");
     }
   };
 

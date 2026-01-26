@@ -85,3 +85,55 @@ export const cancelOrder = async (orderId) => {
     throw error;
   }
 };
+
+export const getOrderByUserId = async (userId) => {
+  try {
+    const { data, error } = await supabase
+      .from("orders")
+      .select(
+        "*, profiles(*), addresses(*), shipments (*), payments (*), order_items(*, product_variants(*, products(*)))",
+      )
+      .eq("user_id", userId);
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Lỗi lấy đơn hàng theo ID người dùng:", error);
+    throw error;
+  }
+};
+
+export const getOrderById = async (orderId) => {
+  try {
+    const { data, error } = await supabase
+      .from("orders")
+      .select(
+        "*, profiles(*), addresses(*), shipments (*), payments (*), order_items(*, product_variants(*, products(*)))",
+      )
+      .eq("order_id", orderId)
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Lỗi lấy đơn hàng theo ID người dùng:", error);
+    throw error;
+  }
+};
+
+export const createOrder = async (orderData, userId) => {
+  try {
+    const { data, error } = await supabase
+      .from("orders")
+      .insert({ ...orderData, user_id: userId })
+      .select()
+      .single();
+
+    if (error) throw error;
+    //thành công thì xóa giỏ hàng
+    return data;
+  } catch (error) {
+    console.error("Lỗi tạo đơn hàng:", error);
+    throw error;
+  }
+};
