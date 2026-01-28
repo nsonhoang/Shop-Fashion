@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { getFullAddress } from "@/services/addressService";
 import { toast } from "sonner";
 import DialogConfirmOrder from "./DialogComfirmOrder";
+import { createOrdersAndItems } from "@/services/orderService";
 
 function CartSheet() {
   const { user, profile } = useAuth();
@@ -152,21 +153,38 @@ function CartSheet() {
   const handleFinalConfirm = async () => {
     setIsProcessing(true);
     try {
-      console.log("Place Order: ", {
-        address: defaultAddress,
-        items: cartItems,
-        total: calculateTotal(),
-        paymentMethod,
-        phone: user?.phone_number,
-      });
+      const orderData = {
+        address_id: defaultAddress.address_id,
+        total_amount: calculateTotal(),
+      };
+      const cart_items = cartItems.map((item) => ({
+        variant_id: item.variant_id,
+        quantity: item.quantity,
+        price_at_purchase: item.product_variants.price_adjustment,
+      }));
 
-      // Giả lập delay API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const payment = {
+        method: paymentMethod,
+        amount: calculateTotal(),
+        status: paymentMethod === "COD" ? "PENDING" : "COMPLETED",
+      };
+      const shipment = {
+        estimated_delivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Estimated delivery in 7 days
+      };
+
+      //phai tao theem casi shipment id nuwax
+      const order = await createOrdersAndItems(
+        orderData,
+        cart_items,
+        user.id,
+        payment,
+        shipment,
+      );
 
       setIsConfirmOpen(false);
       setIsOpen(false); // Đóng Sheet
       toast.success("Đặt hàng thành công!");
-      // navigate("/order-success/DH-123456");
+      navigate(`/order-success/${order.order_id}`);
     } catch (error) {
       toast.error("Lỗi đặt hàng");
       console.error(error);

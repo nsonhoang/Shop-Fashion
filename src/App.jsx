@@ -97,7 +97,7 @@ const router = createBrowserRouter([
         element: <EmailConfirmationPage />,
       },
       {
-        path: "order-success/:id",
+        path: "order-success/:orderId",
         element: <OrderSuccessPage />,
       },
     ],

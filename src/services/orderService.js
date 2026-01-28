@@ -1,4 +1,7 @@
 import { supabase } from "@/lib/supabase";
+import { deleteCartItemByUserId } from "./cartService";
+import { createPaymentIntent } from "./paymentService,js";
+import { createShipment } from "./shipmentService";
 
 export const getOrders = async () => {
   try {
@@ -44,7 +47,7 @@ export const confirmDelivery = async (orderId) => {
       .from("payments")
       .update({
         status: "COMPLETED",
-        updated_at: new Date().toISOString(),
+        // updated_at: new Date().toISOString(),
       })
       .eq("order_id", orderId);
 
@@ -73,7 +76,7 @@ export const cancelOrder = async (orderId) => {
       .from("payments")
       .update({
         status: "FAILED",
-        updated_at: new Date().toISOString(),
+        // updated_at: new Date().toISOString(),
       })
       .eq("order_id", orderId);
 
@@ -130,10 +133,73 @@ export const createOrder = async (orderData, userId) => {
       .single();
 
     if (error) throw error;
-    //thành công thì xóa giỏ hàng
     return data;
   } catch (error) {
     console.error("Lỗi tạo đơn hàng:", error);
     throw error;
+  }
+};
+export const createItemOrder = async (orderId, itemData) => {
+  try {
+    const { data, error } = await supabase
+      .from("order_items")
+      .insert({ ...itemData, order_id: orderId })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Lỗi tạo mục đơn hàng:", error);
+    throw error;
+  }
+};
+export const createOrdersAndItems = async (
+  orderData,
+  itemsData,
+  userId,
+  payment,
+  shipments,
+) => {
+  let createdOrderId = null; // Lưu ID để rollback nếu lỗi
+
+  try {
+    // 1. Tạo Order
+    const order = await createOrder(orderData, userId);
+    createdOrderId = order.order_id; // Lưu lại ID ngay
+
+    // 2. Tạo Order Items (Song song)
+    const itemPromises = itemsData.map((item) =>
+      createItemOrder(createdOrderId, item),
+    );
+    await Promise.all(itemPromises);
+
+    // 3. Tạo Payment và Shipment song song (để nhanh hơn)
+    // Lưu ý: Nếu logic của bạn bắt buộc Payment xong mới được Ship thì để await tuần tự như cũ.
+    await Promise.all([
+      createPaymentIntent(createdOrderId, payment),
+      createShipment(createdOrderId, shipments),
+    ]);
+
+    // 4. QUAN TRỌNG: Chỉ xóa giỏ hàng khi TẤT CẢ các bước trên đã thành công
+    await deleteCartItemByUserId(userId);
+
+    return order;
+  } catch (error) {
+    console.error("Lỗi quy trình tạo đơn hàng:", error);
+
+  
+    if (createdOrderId) {
+      console.log("Đang hoàn tác (xóa) đơn hàng lỗi:", createdOrderId);
+      try {
+        // Bạn cần viết hàm deleteOrderById để xóa order và items liên quan
+        // await deleteOrderById(createdOrderId);
+        // Hoặc cập nhật status thành 'FAILED' nếu không muốn xóa hẳn
+      } catch (rollbackError) {
+        console.error("Lỗi khi hoàn tác đơn hàng:", rollbackError);
+      }
+    }
+
+    throw error; // Ném lỗi ra để UI hiển thị thông báo
   }
 };

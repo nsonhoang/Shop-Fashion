@@ -14,9 +14,11 @@ import { Label } from "@/components/ui/label";
 import { Controller, useForm } from "react-hook-form";
 import { useEffect, useState } from "react"; // 1. Import useEffect
 import { createAddress, updateAddress } from "@/services/addressService";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Nhớ nhận prop isDefault ở đây
 function DialogUpdateAdd({ isDefault, address, isEdit, children, onSuccess }) {
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const {
     register,
@@ -61,7 +63,7 @@ function DialogUpdateAdd({ isDefault, address, isEdit, children, onSuccess }) {
       }
     } else {
       try {
-        const response = createAddress(data);
+        const response = createAddress(data, user.id);
         if (onSuccess) {
           onSuccess(response);
         }

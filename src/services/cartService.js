@@ -54,3 +54,20 @@ export const deleteCartItem = async (itemId, userId) => {
     throw error;
   }
 };
+export const deleteCartItemByUserId = async (userId) => {
+  try {
+    const carts = await getCartsByUserId(userId);
+
+    const { data, error } = await supabase
+      .from("cart_items")
+      .delete()
+      .eq("cart_id", carts.cart_id);
+
+    if (error) throw error;
+
+    return data;
+  } catch (error) {
+    console.error("Error deleting cart:", error);
+    throw error;
+  }
+};

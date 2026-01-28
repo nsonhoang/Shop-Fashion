@@ -27,9 +27,11 @@ export const updateAddress = async (addressId, updatedData) => {
   }
 };
 
-export const createAddress = async (newData) => {
+export const createAddress = async (newData, userId) => {
   try {
-    const { data, error } = await supabase.from("addresses").insert(newData);
+    const { data, error } = await supabase
+      .from("addresses")
+      .insert({ ...newData, user_id: userId });
     if (error) throw error;
     return data;
   } catch (error) {
