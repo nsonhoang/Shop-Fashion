@@ -6,7 +6,7 @@ import ProductList from "./components/ProductList";
 import { Link, useNavigate } from "react-router-dom";
 import FeaturesSection from "./components/FeaturesSection";
 import ProductReviews from "../../main/Review/index"; // thêm phần các comment đánh giá review
-import { menReviews } from "../../main/Review/components/sampleReview" // data mẫu
+import { menReviews } from "../../main/Review/components/sampleReview"; // data mẫu
 
 const MenPage = () => {
   const navigate = useNavigate();
@@ -17,9 +17,9 @@ const MenPage = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-    // để dây sau dùng
-    const handleSortReviews = (sortBy) => {
-    console.log('Sort reviews by:', sortBy);
+  // để dây sau dùng
+  const handleSortReviews = (sortBy) => {
+    console.log("Sort reviews by:", sortBy);
     // chưa xong
   };
 
@@ -93,9 +93,10 @@ const MenPage = () => {
           </div>
         </div>
       </section>
-      
+
       {/* đây phần review */}
-      <section className="py-16 bg-white">
+      {/* dell làm mà cứ thích thêm */}
+      {/* <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
@@ -115,7 +116,7 @@ const MenPage = () => {
             />
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* --- FEATURES SECTION --- */}
       <FeaturesSection />

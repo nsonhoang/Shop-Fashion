@@ -4,7 +4,7 @@ import CategoryImage from "../../../components/womenPage/CategoryImage";
 import ProductList from "../../../components/womenPage/ProductList";
 import bannerImg from "../../../assets/banner2.png";
 import ProductReviews from "../../main/Review/index"; // thêm phần các comment đánh giá review
-import { womenReviews } from "../../main/Review/components/sampleReview" // data mẫu
+import { womenReviews } from "../../main/Review/components/sampleReview"; // data mẫu
 import { Link, useNavigate } from "react-router-dom";
 const categories = [
   {
@@ -74,8 +74,8 @@ const WomenPage = () => {
   };
 
   // để dây sau dùng
-    const handleSortReviews = (sortBy) => {
-    console.log('Sort reviews by:', sortBy);
+  const handleSortReviews = (sortBy) => {
+    console.log("Sort reviews by:", sortBy);
     // chưa xong
   };
 
@@ -125,7 +125,7 @@ const WomenPage = () => {
         </Link>
 
         <div className="w-full max-w-7xl">
-          <ProductList category="women" featured={true} limit={8} />
+          <ProductList />
         </div>
         <Link
           onClick={goToWomenProducts}
@@ -136,17 +136,19 @@ const WomenPage = () => {
       </section>
 
       {/* đây phần review */}
-      <section className="py-16 bg-white">
+      {/* dell làm mà cứ thích thêm */}
+      {/* <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Đánh Giá Từ Khách Hàng
             </h2>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-              Khám phá những trải nghiệm thực tế từ khách hàng đã sử dụng sản phẩm của chúng tôi
+              Khám phá những trải nghiệm thực tế từ khách hàng đã sử dụng sản
+              phẩm của chúng tôi
             </p>
           </div>
-          
+
           <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-10 shadow-sm">
             <ProductReviews
               reviews={womenReviews.reviews}
@@ -156,7 +158,7 @@ const WomenPage = () => {
             />
           </div>
         </div>
-      </section>
+      </section> */}
 
       <section className="bg-gray-50 py-12 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

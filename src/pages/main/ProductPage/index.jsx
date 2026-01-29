@@ -15,8 +15,9 @@ import CustomAlert from "../../../components/customAlert";
 import { Button } from "@/components/ui/button";
 import { getDetailProductAndReViewById } from "@/services/productService";
 import { useAuth } from "@/contexts/AuthContext";
-import { addCartItemToCart, getCartsByUserId } from "@/services/cartService";
+import { addCartItemToCart } from "@/services/cartService";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 
 // Dữ liệu giả lập relatedProducts
 export const relatedProducts = [
@@ -79,6 +80,79 @@ const ProductPage = () => {
     };
     if (id) fetchData();
   }, [id]);
+  useEffect(() => {
+    // Chỉ chạy khi đã có sản phẩm
+    if (!selectedProduct) return;
+
+    // 1. Tạo kênh lắng nghe Realtime
+    const channel = supabase
+      .channel("realtime-inventory") // Tên kênh tùy ý
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE", // Chỉ nghe sự kiện Update
+          schema: "public",
+          table: "inventory", // Tên bảng trong DB (chính xác từng chữ)
+          // filter: `variant_id=in.(${...})` // Nâng cao: Có thể filter để tối ưu
+        },
+        (payload) => {
+          console.log("Có thay đổi tồn kho:", payload);
+          const newInventory = payload.new; // Dữ liệu dòng mới sau khi update
+
+          // 2. Cập nhật State React ngay lập tức
+          setSelectedProduct((prevProduct) => {
+            if (!prevProduct) return prevProduct;
+
+            // Clone lại variants để không mutate state trực tiếp
+            const updatedVariants = prevProduct.product_variants.map(
+              (variant) => {
+                // Tìm variant có inventory khớp với dòng vừa thay đổi
+                // (Dựa vào variant_id hoặc inventory_id)
+                if (
+                  variant.inventory?.inventory_id === newInventory.inventory_id
+                ) {
+                  return {
+                    ...variant,
+                    inventory: {
+                      ...variant.inventory,
+                      quantity_available: newInventory.quantity_available, // Cập nhật số mới
+                    },
+                  };
+                }
+                return variant;
+              },
+            );
+
+            return {
+              ...prevProduct,
+              product_variants: updatedVariants,
+            };
+          });
+
+          // Cập nhật lại selectedVariant nếu nó đang được chọn
+          setSelectedVariant((prevVariant) => {
+            if (
+              prevVariant?.inventory?.inventory_id === newInventory.inventory_id
+            ) {
+              return {
+                ...prevVariant,
+                inventory: {
+                  ...prevVariant.inventory,
+                  quantity_available: newInventory.quantity_available,
+                },
+              };
+            }
+            return prevVariant;
+          });
+        },
+      )
+      .subscribe();
+
+    // 3. Hủy đăng ký khi component unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedProduct]);
 
   // 1. Lấy danh sách ảnh (Lọc trùng lặp) - Giữ nguyên logic này
   const sortedImages = useMemo(() => {
@@ -147,12 +221,19 @@ const ProductPage = () => {
   };
 
   // thêm vào giỏ hàng
+  // thêm vào giỏ hàng
   const handleAddToCart = async () => {
-    // Kiểm tra đã chọn variant chưa
-
+    // 1. Kiểm tra đã chọn variant chưa
     if (!selectedVariant) {
       setShowAlertError(true);
       setTimeout(() => setShowAlertError(false), 3000);
+      return;
+    }
+
+    // 2. LOGIC MỚI: Kiểm tra tồn kho
+    const stock = selectedVariant.inventory?.quantity_available || 0;
+    if (stock <= 0) {
+      toast.error("Sản phẩm này hiện đang hết hàng.");
       return;
     }
 
@@ -160,13 +241,14 @@ const ProductPage = () => {
       quantity: 1,
       variantId: selectedVariant.variant_id,
     };
+
     try {
       await addCartItemToCart(cartItem, user.id);
       setShowAlertSuccess(true);
       setTimeout(() => setShowAlertSuccess(false), 3000);
     } catch (error) {
       console.error("Lỗi khi thêm vào giỏ hàng:", error);
-      toast.error("Lỗi khi thêm vào giỏ hàng hoặc ");
+      toast.error("Lỗi khi thêm vào giỏ hàng");
     }
   };
 
@@ -295,29 +377,44 @@ const ProductPage = () => {
           <div className="flex flex-col gap-3">
             <span className="font-semibold text-gray-900">Chọn loại hàng:</span>
 
+            {/* ... Bên trong return, phần map variants ... */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {selectedProduct.product_variants.map((variant) => {
                 const isSelected =
                   selectedVariant?.variant_id === variant.variant_id;
+                // Lấy tồn kho
+                const stock = variant.inventory?.quantity_available || 0;
+                const isOutOfStock = stock <= 0;
+
                 return (
                   <button
                     key={variant.variant_id}
                     onClick={() => handleSelectVariant(variant)}
                     className={`
-                                relative flex flex-col items-start p-3 border rounded-lg text-sm transition-all
-                                ${
-                                  isSelected
-                                    ? "border-black bg-gray-50 ring-1 ring-black"
-                                    : "border-gray-200 hover:border-gray-400 bg-white"
-                                }
-                            `}
+          relative flex flex-col items-start p-3 border rounded-lg text-sm transition-all
+          ${
+            isSelected
+              ? "border-black bg-gray-50 ring-1 ring-black"
+              : "border-gray-200 hover:border-gray-400 bg-white"
+          }
+          ${isOutOfStock ? "opacity-60 bg-gray-100" : ""} 
+        `}
                   >
                     <span className="font-bold text-gray-900">
                       {variant.color} - Size {variant.size}
                     </span>
-                    <span className="text-gray-500 text-xs mt-1">
-                      SKU: {variant.sku?.split("-")[1]}
-                    </span>
+
+                    <div className="flex justify-between w-full items-center mt-1">
+                      <span className="text-gray-500 text-xs">
+                        SKU: {variant.sku?.split("-")[1]}
+                      </span>
+                      {/* Hiển thị chữ Hết hàng nhỏ */}
+                      {isOutOfStock && (
+                        <span className="text-[10px] font-bold text-red-500 bg-red-50 px-1 rounded">
+                          Hết hàng
+                        </span>
+                      )}
+                    </div>
 
                     {/* Icon check nếu được chọn */}
                     {isSelected && (
@@ -342,20 +439,34 @@ const ProductPage = () => {
 
           {/* Nút thêm vào giỏ */}
           <div className="mt-8">
-            <button
-              className={`
-                text-xl py-3 px-4 w-[70%] rounded-sm transition-colors
-                ${
-                  selectedVariant
-                    ? "bg-black text-white hover:bg-gray-800 cursor-pointer"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }
-              `}
-              onClick={handleAddToCart}
-              // disabled={!selectedVariant} // Có thể disable hoặc để active nhưng hiện alert
-            >
-              {selectedVariant ? "Thêm vào giỏ hàng" : "Chọn phân loại hàng"}
-            </button>
+            {(() => {
+              // Tính toán trạng thái ngay tại đây cho gọn
+              const currentStock =
+                selectedVariant?.inventory?.quantity_available || 0;
+              const isOutOfStock = selectedVariant && currentStock <= 0;
+              const isDisabled = !selectedVariant || isOutOfStock;
+
+              return (
+                <button
+                  className={`
+          text-xl py-3 px-4 w-[70%] rounded-sm transition-colors
+          ${
+            !isDisabled
+              ? "bg-black text-white hover:bg-gray-800 cursor-pointer"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+          }
+        `}
+                  onClick={handleAddToCart}
+                  disabled={isDisabled} // Disable nút nếu chưa chọn hoặc hết hàng
+                >
+                  {!selectedVariant
+                    ? "Chọn phân loại hàng"
+                    : isOutOfStock
+                      ? "Sản phẩm tạm hết hàng"
+                      : "Thêm vào giỏ hàng"}
+                </button>
+              );
+            })()}
           </div>
 
           <div className="border-t border-gray-200 mt-10" />

@@ -188,7 +188,6 @@ export const createOrdersAndItems = async (
   } catch (error) {
     console.error("Lỗi quy trình tạo đơn hàng:", error);
 
-  
     if (createdOrderId) {
       console.log("Đang hoàn tác (xóa) đơn hàng lỗi:", createdOrderId);
       try {
@@ -201,5 +200,57 @@ export const createOrdersAndItems = async (
     }
 
     throw error; // Ném lỗi ra để UI hiển thị thông báo
+  }
+};
+
+export const getOrdersByStatus = async (
+  status,
+  startDate = null,
+  endDate = null,
+) => {
+  try {
+    // 1. Khởi tạo query
+    let query = supabase
+      .from("orders")
+      .select(
+        `
+        order_id,
+        created_at,
+        status,
+        order_items (
+            quantity,
+            price_at_purchase,
+            product_variants (
+                price_adjustment,
+                      image_url,
+                products (
+                    product_id,
+                    name,
+              
+                    category_id
+                )
+            )
+        )
+      `,
+      )
+      .eq("status", status);
+
+    // 2. Nếu có truyền ngày tháng thì lọc (Dùng cho Dashboard/Top Product)
+    if (startDate && endDate) {
+      query = query
+        .gte("created_at", startDate) // Lớn hơn hoặc bằng ngày bắt đầu
+        .lte("created_at", endDate); // Nhỏ hơn hoặc bằng ngày kết thúc
+    }
+
+    // 3. Sắp xếp mới nhất trước (Quan trọng)
+    query = query.order("created_at", { ascending: false });
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Lỗi lấy đơn hàng:", error);
+    throw error;
   }
 };

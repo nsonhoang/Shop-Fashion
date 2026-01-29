@@ -79,7 +79,7 @@ export default function ListProductPage() {
       <main className="flex-1">
         {/* Tiêu đề */}
         <h1 className="text-xl md:text-2xl font-semibold mb-4 capitalize">
-          {currentGender}’s Clothing & Apparel – New Arrivals
+          {currentGender} Clothing & Apparel – New Arrivals
         </h1>
 
         {/* --- Toolbar: Search & Filter --- */}

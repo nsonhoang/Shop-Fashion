@@ -23,12 +23,13 @@ const featuresData = [
         <line x1="12" y1="22.08" x2="12" y2="12"></line>
       </svg>
     ),
-    title: "Complimentary Shipping",
-    description: "Enjoy free shipping on U.S. orders over $100.",
+    title: "Giao Hàng Miễn Phí",
+    description:
+      "Miễn phí vận chuyển cho mọi đơn hàng có giá trị trên 1.000.000đ.",
   },
   {
     id: 2,
-    // SVG Icon móc treo tái chế (vẽ gần giống nhất có thể)
+    // SVG Icon móc treo tái chế
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -50,8 +51,9 @@ const featuresData = [
         <path d="M5 15v-3a2 2 0 0 1 2-2h1"></path>
       </svg>
     ),
-    title: "Consciously Crafted",
-    description: "Designed with you and the planet in mind.",
+    title: "Sản Xuất Bền Vững",
+    description:
+      "Thiết kế chú trọng đến trải nghiệm của bạn và thân thiện với môi trường.",
   },
   {
     id: 3,
@@ -73,31 +75,31 @@ const featuresData = [
         <circle cx="12" cy="10" r="3"></circle>
       </svg>
     ),
-    title: "Come Say Hi",
-    description: "We have 11 stores across the U.S.",
+    title: "Ghé Thăm Cửa Hàng",
+    description:
+      "Trải nghiệm trực tiếp sản phẩm tại hệ thống cửa hàng trên toàn quốc.",
   },
 ];
 
 const FeaturesSection = () => {
   return (
-    // Container chính, thêm padding trên dưới và màu nền trắng
+    // Container chính
     <div className="py-16 px-4 bg-white">
-      {/* Grid layout: 1 cột trên mobile, 3 cột trên màn hình lớn (md trở lên) */}
+      {/* Grid layout */}
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
-        {/* Lặp qua dữ liệu để tạo từng khối */}
+        {/* Lặp qua dữ liệu */}
         {featuresData.map((item) => (
           <div key={item.id} className="flex flex-col items-center">
             {/* Khu vực chứa Icon */}
             <div className="mb-5 p-2">{item.icon}</div>
 
             {/* Tiêu đề */}
-            <h3 className="text-base font-semibold text-gray-900 mb-3 tracking-wide">
+            <h3 className="text-base font-semibold text-gray-900 mb-3 tracking-wide uppercase">
               {item.title}
             </h3>
 
             {/* Mô tả */}
-            {/* max-w-xs giúp giới hạn chiều rộng text để nó xuống dòng đẹp như ảnh */}
-            <p className="text-gray-600 text-base leading-relaxed  mx-auto tracking-wide ">
+            <p className="text-gray-600 text-base leading-relaxed mx-auto tracking-wide max-w-xs">
               {item.description}
             </p>
           </div>
