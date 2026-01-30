@@ -11,26 +11,26 @@ import {
 
 const AddCategoryDialog = ({ open, onOpenChange, onSubmit }) => {
   const [name, setName] = React.useState("");
-  const [slug, setSlug] = React.useState("");
-  const [productCount, setProductCount] = React.useState("");
-  const [description, setDescription] = React.useState("");
+  // const [slug, setSlug] = React.useState("");
+  // const [productCount, setProductCount] = React.useState("");
+  // const [description, setDescription] = React.useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     onSubmit({
-      id: crypto.randomUUID(),
+      // id: crypto.randomUUID(),
       name,
-      slug,
-      description,
-      productCount: 0,
+      // slug,
+      // description,
+      // productCount: 0,
     });
 
     // reset form
     setName("");
-    setSlug("");
-    setProductCount("");
-    setDescription("");
+    // setSlug("");
+    // setProductCount("");
+    // setDescription("");
     onOpenChange(false);
   };
 
@@ -49,25 +49,25 @@ const AddCategoryDialog = ({ open, onOpenChange, onSubmit }) => {
             required
           />
 
-          <Input
+          {/* <Input
             placeholder="Slug (e.g. t-shirts)"
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
             required
-          />
-
+          /> */}
+          {/* 
           <Input
             placeholder="Product Count"
             type="number"
             value={productCount}
             onChange={(e) => setProductCount(e.target.value)}
-          />
+          /> */}
 
-          <Input
+          {/* <Input
             placeholder="Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-          />
+          /> */}
 
           <DialogFooter>
             <Button type="submit">Create</Button>

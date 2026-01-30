@@ -5,45 +5,47 @@ import MainLayout from "../src/layouts/main/index.jsx";
 import Loading from "./components/Loading";
 import { AdminLayout } from "./layouts/admin/index.jsx";
 import { List } from "lucide-react";
-import ListProductPage from "./pages/main/ListProduct/listProduct.jsx";
+import ListProductPage from "./pages/main/ListProduct/ListProductPage.jsx";
+import { adminLoader } from "./utils/authLoader.js";
 
 // 2. Định nghĩa Lazy Import (Code splitting)
-// Cách này hoạt động tốt với "export default"
-const MenPage = React.lazy(() => import("@/pages/main/MenPage/index.jsx"));
-const WomenPage = React.lazy(() => import("@/pages/main/WomenPage/index.jsx"));
-const AboutPage = React.lazy(() => import("@/pages/main/About/index.jsx"));
-const StoryPage = React.lazy(() => import("@/pages/main/Story/index.jsx"));
-const ProductPage = React.lazy(() =>
-  import("@/pages/main/ProductPage/index.jsx")
+
+const MenPage = React.lazy(() => import("@/pages/main/MenPage"));
+const WomenPage = React.lazy(() => import("@/pages/main/WomenPage"));
+const AboutPage = React.lazy(() => import("@/pages/main/About"));
+const StoryPage = React.lazy(() => import("@/pages/main/Story"));
+const ProductPage = React.lazy(() => import("@/pages/main/ProductPage"));
+const OrderHistory = React.lazy(() => import("@/pages/main/OrderHistory"));
+const ProfilePage = React.lazy(() => import("@/pages/main/ProfilePage"));
+const RegisterSuccessPage = React.lazy(
+  () => import("@/pages/main/RegisterSuccessPage"),
 );
-const OrderHistory = React.lazy(() =>
-  import("@/pages/main/OrderHistory/index.jsx")
+
+const EmailConfirmationPage = React.lazy(
+  () => import("@/pages/main/EmailConfirmationPage"),
 );
-const ProfilePage = React.lazy(() =>
-  import("@/pages/main/ProfilePage/index.jsx")
+const ErrorPage = React.lazy(() => import("@/pages/main/Error"));
+const Dashboard = React.lazy(() => import("@/pages/admin/Dashboard"));
+const ProductAdminPage = React.lazy(
+  () => import("@/pages/admin/Product/AdminProducts.jsx"),
 );
-const ErrorPage = React.lazy(() => import("@/pages/main/Error/index.jsx"));
-const Dashboard = React.lazy(() => import("@/pages/admin/Dashboard/index.jsx"));
-const ProductAdminPage = React.lazy(() =>
-  import("@/pages/admin/Product/AdminProducts.jsx")
+const CategoriesAdminPage = React.lazy(
+  () => import("@/pages/admin/Categories/index.jsx"),
 );
-const CategoriesAdminPage = React.lazy(() =>
-  import("@/pages/admin/Categories/index.jsx")
+const CustomersAdminPage = React.lazy(
+  () => import("@/pages/admin/Customers/index.jsx"),
 );
-const CustomersAdminPage = React.lazy(() =>
-  import("@/pages/admin/Customers/index.jsx")
+const InventoryAdminPage = React.lazy(
+  () => import("@/pages/admin/Inventory/index.jsx"),
 );
-const InventoryAdminPage = React.lazy(() =>
-  import("@/pages/admin/Inventory/index.jsx")
+const AnalyticsAdminPage = React.lazy(
+  () => import("@/pages/admin/Analytics/index.jsx"),
 );
-const AnalyticsAdminPage = React.lazy(() =>
-  import("@/pages/admin/Analytics/index.jsx")
+const SettingsAdminPage = React.lazy(
+  () => import("@/pages/admin/Settings/index.jsx"),
 );
-const SettingsAdminPage = React.lazy(() =>
-  import("@/pages/admin/Settings/index.jsx")
-);
-const OrdersAdminPage = React.lazy(() =>
-  import("@/pages/admin/Orders/index.jsx")
+const OrdersAdminPage = React.lazy(
+  () => import("@/pages/admin/Orders/index.jsx"),
 );
 
 const router = createBrowserRouter([
@@ -85,13 +87,23 @@ const router = createBrowserRouter([
         path: "products",
         element: <ListProductPage />,
       },
+      {
+        path: "register-success",
+        element: <RegisterSuccessPage />,
+      },
+      {
+        path: "email-confirmation",
+        element: <EmailConfirmationPage />,
+      },
     ],
     // --- KẾT THÚC: Route trung gian ---
   },
   {
     path: "/admin",
     element: <AdminLayout />,
-    Suspense: <Loading />,
+    // Suspense: <Loading />,
+    errorElement: <ErrorPage />,
+    loader: adminLoader,
     children: [
       {
         index: true,

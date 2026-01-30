@@ -8,9 +8,10 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import CartSheet from "@/components/CartSheet";
 import DialogLogin from "@/components/DialogLogin";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Component Link (Dùng chung cho cả Desktop và Mobile)
 const NavItem = ({ to, label, onClick }) => (
@@ -38,9 +39,12 @@ const NavItem = ({ to, label, onClick }) => (
 );
 
 function Header() {
-  const [user, setUser] = useState(true); // cái này để gắn tạp khi user sẽ đc lấy ở context kiểm tra
+  const { user, signOut, role } = useAuth(); // cái này để gắn tạp khi user sẽ đc lấy ở context kiểm tra
+
+  const [searchTerm, setSearchTerm] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isDropMenuOpen, setIsDropMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   // State mới cho Mobile Menu
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -60,11 +64,23 @@ function Header() {
     setIsDropMenuOpen(!isDropMenuOpen);
   };
 
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    const cleanSearch = searchTerm.trim();
+    if (!cleanSearch) return;
+
+    // Chỉ cần search và reset về trang 1.
+    // KHÔNG truyền gender vào nữa.
+    navigate(`/products?search=${encodeURIComponent(cleanSearch)}&page=1`);
+  };
   const navLinks = [
-    { to: "/women", label: "Women" },
-    { to: "/", label: "Man" },
-    { to: "/about", label: "About" },
-    { to: "/story", label: "Story" },
+    { to: "/women", label: "Nữ" },
+    { to: "/", label: "Nam" },
+    { to: "/about", label: "Giới thiệu" },
+    { to: "/story", label: "Câu chuyện" },
   ];
 
   return (
@@ -141,15 +157,21 @@ function Header() {
                       <History className="h-4.5 w-4.5 text-gray-500 group-hover:text-gray-900 transition-colors" />
                       <span>Lịch sử mua hàng</span>
                     </NavLink>
+                    {role === 1 && (
+                      <NavLink
+                        className="flex items-center text-sm gap-2 p-2 hover:bg-gray-100"
+                        to="/admin"
+                      >
+                        <ShieldCheck className="h-4.5 w-4.5 text-gray-500 group-hover:text-gray-900 transition-colors" />
+                        <span>Truy cập trang quản trị</span>
+                      </NavLink>
+                    )}
+
                     <NavLink
-                      className="flex items-center text-sm gap-2 p-2 hover:bg-gray-100"
-                      to="/admin"
-                    >
-                      <ShieldCheck className="h-4.5 w-4.5 text-gray-500 group-hover:text-gray-900 transition-colors" />
-                      <span>Truy cập trang quản trị</span>
-                    </NavLink>
-                    <NavLink
-                      to="/logout"
+                      onClick={() => {
+                        signOut();
+                        setIsDropMenuOpen(false);
+                      }}
                       className="flex items-center text-sm gap-2 p-2 text-red-500 hover:bg-gray-100"
                     >
                       <LogOut className="h-4.5 w-4.5 text-red-500 group-hover:text-gray-900 transition-colors" />
@@ -185,21 +207,32 @@ function Header() {
               }
             `}
           >
-            <div className="container mx-auto max-w-4xl flex items-center gap-4">
+            {/* thanh tìm kiếm */}
+            {/* 1. Đổi div thành form và thêm onSubmit */}
+            <form
+              onSubmit={handleSearchSubmit}
+              className="container mx-auto max-w-4xl flex items-center gap-4"
+            >
               <Search className="h-5 w-5 text-gray-400" />
+
               <input
                 type="text"
                 placeholder="Search products..."
                 autoFocus={isSearchOpen}
+                value={searchTerm}
+                onChange={handleSearchChange} // Vẫn giữ onChange để cập nhật state
                 className="flex-1 bg-gray-100 rounded-md px-4 py-2 text-sm outline-none placeholder:text-gray-500 focus:bg-gray-50 transition-colors"
               />
+
               <button
+                /* 2. BẮT BUỘC: Thêm type="button" để không bị submit nhầm khi bấm Cancel */
+                type="button"
                 onClick={() => setIsSearchOpen(false)}
                 className="text-sm font-medium text-gray-500 hover:text-black transition-colors"
               >
                 Cancel
               </button>
-            </div>
+            </form>
           </div>
         </div>
       </header>
@@ -222,7 +255,10 @@ function Header() {
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <span className="font-bold text-lg tracking-wider">MENU</span>
           <button
-            onClick={() => setIsMobileMenuOpen(false)}
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              signOut();
+            }}
             className="p-2 hover:bg-gray-100 rounded-full"
           >
             <X className="h-6 w-6 text-gray-500" />
@@ -264,7 +300,6 @@ function Header() {
                 Đơn hàng
               </Link>
               <Link
-                to="/logout"
                 className="text-red-500 ml-7"
                 onClick={() => setIsMobileMenuOpen(false)}
               >

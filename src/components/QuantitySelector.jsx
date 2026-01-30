@@ -13,7 +13,7 @@ export function QuantitySelector({ value, onDecrease, onIncrease, className }) {
     <div
       className={cn(
         "flex items-center border border-input rounded-sm w-fit", // Viền bao quanh, bo góc nhẹ
-        className
+        className,
       )}
     >
       {/* Nút Trừ */}

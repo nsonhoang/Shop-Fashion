@@ -7,7 +7,7 @@ function ReviewDetailItem({ review }) {
       {/* tên */}
       <div className="flex flex-col basis-1/5 gap-2">
         <span className="font-medium text-lg text-gray-900 ">
-          {review.user.full_name}
+          {review.profiles.full_name}
         </span>
         {/* <label>
           Màu sắc: <span className="text-sm text-gray-500">{review.color}</span>

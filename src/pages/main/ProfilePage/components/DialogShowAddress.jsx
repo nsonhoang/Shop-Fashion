@@ -9,38 +9,91 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { mockAddresses } from "@/constants/mockValue";
-import { CheckCircle2 } from "lucide-react"; // Import thêm icon check cho đẹp
+import { CheckCircle2, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import DialogUpdateAdd from "./DialogUpdateAdd";
+import { useAuth } from "@/contexts/AuthContext";
+import { deleteAddress, getFullAddress } from "@/services/addressService";
+
+// ĐÃ XÓA IMPORT SONNER Ở ĐÂY
 
 function DialogShowAddress() {
+  const { user } = useAuth();
   const [addresses, setAddresses] = useState([]);
-  // 1. State lưu ID của địa chỉ đang được chọn
   const [selectedId, setSelectedId] = useState(null);
 
+  // 1. Fetch dữ liệu
   useEffect(() => {
     const fetchAddresses = async () => {
-      // Giả lập await dữ liệu
-      const response = await mockAddresses;
-      setAddresses(response);
-
-      // (Tùy chọn) Tự động chọn địa chỉ mặc định khi mở lên
-      const defaultAddr = response.find((a) => a.is_default);
-      if (defaultAddr) {
-        setSelectedId(defaultAddr.address_id);
+      try {
+        if (!user?.id) return;
+        const data = await getFullAddress(user.id);
+        setAddresses(data);
+      } catch (error) {
+        console.error("Error fetching addresses:", error);
       }
     };
     fetchAddresses();
-  }, []);
+  }, [user]);
 
-  // Hàm xử lý khi bấm nút Sửa
-  // const handleEdit = () => {
-  //   if (!selectedId) return;
-  //   console.log("Đang sửa địa chỉ có ID:", selectedId);
-  //   // Tại đây bạn sẽ mở Modal sửa hoặc chuyển trang...
-  // };
   const selectAddress = addresses.find((a) => a.address_id === selectedId);
+
+  // 2. Logic cập nhật State khi Sửa
+  const handleChangeAddress = (updatedAddress) => {
+    setAddresses((prevAddresses) => {
+      if (updatedAddress.is_default) {
+        return prevAddresses.map((addr) => ({
+          ...addr,
+          ...(addr.address_id === updatedAddress.address_id
+            ? updatedAddress
+            : { is_default: false }),
+        }));
+      }
+      return prevAddresses.map((addr) =>
+        addr.address_id === updatedAddress.address_id ? updatedAddress : addr,
+      );
+    });
+  };
+
+  // 3. Logic cập nhật State khi Thêm
+  const handleAddAddress = (newAddress) => {
+    setAddresses((prevAddresses) => {
+      if (newAddress.is_default) {
+        const resetOldList = prevAddresses.map((addr) => ({
+          ...addr,
+          is_default: false,
+        }));
+        return [...resetOldList, newAddress];
+      }
+      return [...prevAddresses, newAddress];
+    });
+  };
+
+  // 4. Logic XÓA
+  const handleDelete = async () => {
+    if (!selectedId) return;
+
+    const isConfirm = window.confirm(
+      "Bạn có chắc chắn muốn xóa địa chỉ này không?",
+    );
+    if (!isConfirm) return;
+
+    try {
+      await deleteAddress(selectedId);
+
+      // Cập nhật State
+      setAddresses((prev) =>
+        prev.filter((item) => item.address_id !== selectedId),
+      );
+      setSelectedId(null);
+
+      // Dùng alert thay vì toast
+      alert("Đã xóa địa chỉ thành công!");
+    } catch (error) {
+      console.error("Lỗi khi xóa:", error);
+      alert("Lỗi: Không thể xóa địa chỉ này.");
+    }
+  };
 
   return (
     <Dialog>
@@ -57,7 +110,7 @@ function DialogShowAddress() {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="py-4 max-h-[400px] overflow-y-auto">
+        <div className="py-4 max-h-[400px] overflow-y-auto pr-1">
           {addresses.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">
               Bạn chưa lưu địa chỉ nào.
@@ -67,42 +120,33 @@ function DialogShowAddress() {
               {addresses
                 .sort((a, b) => (b.is_default === true ? 1 : -1))
                 .map((address) => {
-                  // Kiểm tra xem item này có đang được chọn không
                   const isSelected = selectedId === address.address_id;
-
                   return (
                     <li
                       key={address.address_id}
-                      // 2. Sự kiện click để chọn
                       onClick={() => setSelectedId(address.address_id)}
-                      // 3. Style điều kiện: Nếu chọn thì viền đậm màu xanh/đen
                       className={`relative flex cursor-pointer items-start justify-between rounded-xl border p-4 transition-all duration-200 ${
                         isSelected
-                          ? "border-blue-600 bg-blue-50 ring-1 ring-blue-600" // Style khi ĐƯỢC CHỌN
-                          : "border-gray-200 hover:border-blue-300 hover:bg-gray-50" // Style bình thường
+                          ? "border-blue-600 bg-blue-50 ring-1 ring-blue-600"
+                          : "border-gray-200 hover:border-blue-300 hover:bg-gray-50"
                       }`}
                     >
                       <div className="space-y-1.5 pr-8">
                         <div className="flex items-center gap-2">
                           <p
-                            className={`font-semibold ${
-                              isSelected ? "text-blue-700" : "text-gray-900"
-                            }`}
+                            className={`font-semibold ${isSelected ? "text-blue-700" : "text-gray-900"}`}
                           >
                             {address.street}
                           </p>
-
                           {address.is_default && (
                             <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-blue-700">
                               Mặc định
                             </span>
                           )}
                         </div>
-
                         <p className="text-sm text-gray-500">{address.city}</p>
                       </div>
 
-                      {/* Icon Check hiện ra khi được chọn */}
                       {isSelected && (
                         <div className="absolute right-4 top-4 text-blue-600">
                           <CheckCircle2 className="h-5 w-5" />
@@ -116,32 +160,43 @@ function DialogShowAddress() {
         </div>
 
         <DialogFooter className="gap-2 sm:space-x-0">
-          {/* Nút Thêm */}
-
-          <DialogUpdateAdd address={null} isEdit={false}>
-            <Button
-              type="button"
-              className="bg-green-600 hover:bg-green-700 text-white flex-1 sm:flex-none"
-            >
+          <DialogUpdateAdd
+            address={null}
+            isEdit={false}
+            onSuccess={handleAddAddress}
+            isDefault={addresses.length === 0}
+          >
+            <Button className="bg-green-600 hover:bg-green-700 text-white flex-1 sm:flex-none">
               Thêm mới
             </Button>
           </DialogUpdateAdd>
 
-          {/* Nút Sửa - Đã cập nhật logic */}
-          {/* Lưu ý: Nếu muốn bấm Sửa xong mới đóng Modal thì dùng DialogClose. 
-              Nếu muốn bấm Sửa -> Mở Modal khác đè lên -> Thì không dùng DialogClose ở đây */}
-          <DialogUpdateAdd address={selectAddress} isEdit={true}>
+          <DialogUpdateAdd
+            address={selectAddress}
+            isEdit={true}
+            onSuccess={handleChangeAddress}
+          >
             <Button
               type="button"
-              disabled={!selectedId} // 4. Disable nếu chưa chọn
-              // onClick={handleEdit}
+              disabled={!selectedId}
               className="bg-amber-500 hover:bg-amber-600 text-white flex-1 sm:flex-none"
             >
-              Sửa địa chỉ
+              Sửa
             </Button>
           </DialogUpdateAdd>
 
-          {/* Nút Đóng */}
+          {/* Nút XÓA */}
+          <Button
+            type="button"
+            variant="destructive"
+            disabled={!selectedId}
+            onClick={handleDelete}
+            className="flex-1 sm:flex-none gap-2"
+          >
+            <Trash2 className="w-4 h-4" />
+            Xóa
+          </Button>
+
           <DialogClose asChild>
             <Button
               type="button"
