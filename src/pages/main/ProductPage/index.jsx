@@ -9,7 +9,6 @@ import ServiceHighlights from "./components/ServiceHighlights";
 import ProductDetail from "./components/ProductDetail";
 import ProductItem from "../../../components/ProductItem";
 import RatingOverview from "./components/RatingOverview";
-import ListReviewDetail from "./components/ListReviewDetail";
 import TransparentPricing from "./components/TransparentPricing";
 import CustomAlert from "../../../components/customAlert";
 import { Button } from "@/components/ui/button";
@@ -18,6 +17,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { addCartItemToCart } from "@/services/cartService";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
+import DialogCreateReview from "./components/DialogCreateReview";
+import { createProductReview } from "@/services/reviewService";
+import ListReviewDemoDetail from "./components/ListReviewDemoDetail";
+import ReviewsListDialog from "./components/ReviewsListDialog";
+import { set } from "react-hook-form";
 
 // Dữ liệu giả lập relatedProducts
 export const relatedProducts = [
@@ -59,7 +63,8 @@ const ProductPage = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [reviews, setReviews] = useState([]);
+  const [reviews, setReviews] = useState([]); //list danh sách đánh giá
+  const [reviewDemo, setReviewDemo] = useState([]); //list danh sách đánh giá demo 5 cái thôi
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   // THAY ĐỔI LỚN: Chỉ dùng 1 state cho variant được chọn
@@ -73,6 +78,7 @@ const ProductPage = () => {
       try {
         const { product, reviews } = await getDetailProductAndReViewById(id);
         setSelectedProduct(product);
+        setReviewDemo(reviews?.slice(0, 5) || []);
         setReviews(reviews || []);
       } catch (error) {
         console.error("Lỗi khi lấy dữ liệu sản phẩm:", error.message);
@@ -221,7 +227,6 @@ const ProductPage = () => {
   };
 
   // thêm vào giỏ hàng
-  // thêm vào giỏ hàng
   const handleAddToCart = async () => {
     // 1. Kiểm tra đã chọn variant chưa
     if (!selectedVariant) {
@@ -257,6 +262,24 @@ const ProductPage = () => {
       <div className="mt-20 text-center">Đang tải dữ liệu sản phẩm...</div>
     );
   }
+  //nhấn vào nút viết đánh giá
+  const handleCreateReview = async (data) => {
+    const reviews = {
+      ...data,
+      user_id: user.id,
+      product_id: selectedProduct.product_id,
+    };
+    try {
+      const reviewResult = await createProductReview(reviews);
+
+      setReviews((prevReviews) => [reviewResult, ...prevReviews]);
+      toast.success("Viết đánh giá sản phẩm thành công!");
+    } catch (error) {
+      console.error("Lỗi khi tạo đánh giá sản phẩm:", error.message);
+      toast.error("Lỗi khi viết đánh giá sản phẩm");
+    }
+    // Mở dialog tạo đánh giá
+  };
 
   return (
     <div className="product-page flex flex-col justify-center items-center mt-20 relative">
@@ -520,15 +543,12 @@ const ProductPage = () => {
         </h2>
         <RatingOverview agvRating={Number(avgRating)} reviews={reviews} />
         <div className="mt-8">
-          <ListReviewDetail reviews={reviews} />
+          <ListReviewDemoDetail reviews={reviewDemo} />
         </div>
         <div className="flex flex-col items-center gap-3 mt-8 pb-10">
-          <Button className="w-[300px] bg-white text-gray-900 border border-gray-300 hover:bg-gray-50">
-            Viết đánh giá
-          </Button>
-          <Button className="w-[300px] bg-black hover:bg-gray-800 text-white">
-            Xem thêm đánh giá
-          </Button>
+          <DialogCreateReview onSubmit={handleCreateReview} />
+          {/* xem thêm đánh giá */}
+          <ReviewsListDialog reviews={reviews} />
         </div>
       </div>
 

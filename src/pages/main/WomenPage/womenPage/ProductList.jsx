@@ -1,4 +1,3 @@
-import ProductItem from "../../../../components/ProductItem";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "@/styles/styles.css";
 // Import Swiper styles
@@ -9,9 +8,10 @@ import "swiper/css/pagination";
 // Import các modules cần dùng
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import { useNavigate } from "react-router-dom";
-import { getProductsForCarousel } from "@/services/productService";
+import ProductItem from "@/components/ProductItem";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { getProductsForCarousel } from "@/services/productService";
 
 function ProductList() {
   const navigation = useNavigate();
@@ -19,18 +19,18 @@ function ProductList() {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const gender = "MEN";
+      const gender = "WOMEN";
       try {
         const products = await getProductsForCarousel(gender);
         setProducts(products);
       } catch (error) {
-        console.error("Lỗi khi lấy sản phẩm nam cho carousel:", error.message);
-        toast.error("Lỗi ");
+        console.error("Lỗi khi lấy sản phẩm nữ cho carousel:", error.message);
+        toast.error("Lỗi khi lấy sản phẩm nữ");
       }
     };
     fetchProducts();
   }, []);
-  console.log("Sản phẩm nam:", products);
+  console.log("Sản phẩm nữ:", products);
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4">
@@ -63,17 +63,16 @@ function ProductList() {
           >
             <ProductItem
               image={
-                (
-                  product.product_images?.find((img) => img.is_thumbnail) ||
-                  product.product_images?.[0]
-                )?.image_url
+                product.product_images.map((img) =>
+                  img.is_thumbnail ? img.image_url : null,
+                )[0]
               }
               name={product.name}
               price={product.base_price}
               color={
-                product.product_images.find((img) =>
+                product.product_images.map((img) =>
                   img.is_thumbnail ? img.color : null,
-                )?.color || product.product_images?.[0]?.color
+                )[0]
               }
               onClick={() => console.log("Product clicked:", product.id)}
             />

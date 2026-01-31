@@ -1,11 +1,12 @@
 import React from "react";
-import CategoryProduct from "../../../components/womenPage/CategoryProduct";
-import CategoryImage from "../../../components/womenPage/CategoryImage";
-import ProductList from "../../../components/womenPage/ProductList";
+
 import bannerImg from "../../../assets/banner2.png";
 import ProductReviews from "../../main/Review/index"; // thêm phần các comment đánh giá review
-import { womenReviews } from "../../main/Review/components/sampleReview"; // data mẫu
+import { womenReviews } from "../../main/Review/components/sampleReview"; // data mẫu\
 import { Link, useNavigate } from "react-router-dom";
+import CategoryImage from "./womenPage/CategoryImage";
+import ProductList from "./womenPage/ProductList";
+import CategoryProduct from "./womenPage/CategoryProduct";
 const categories = [
   {
     id: 1,
@@ -73,11 +74,11 @@ const WomenPage = () => {
     // Hiển thị modal hoặc chuyển trang
   };
 
-  // để dây sau dùng
-  const handleSortReviews = (sortBy) => {
-    console.log("Sort reviews by:", sortBy);
-    // chưa xong
-  };
+  // // để dây sau dùng
+  // const handleSortReviews = (sortBy) => {
+  //   console.log("Sort reviews by:", sortBy);
+  //   // chưa xong
+  // };
 
   return (
     <div className="flex flex-col flex-1">

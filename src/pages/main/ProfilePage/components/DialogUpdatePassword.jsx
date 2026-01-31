@@ -1,3 +1,4 @@
+import { useState } from "react"; // 1. Import useState
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,8 +12,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 
 function DialogUpdatePassword() {
+  const [open, setOpen] = useState(false); // 2. Tạo state quản lý đóng mở
+
   const {
     register,
     handleSubmit,
@@ -27,18 +32,53 @@ function DialogUpdatePassword() {
     },
   });
 
-  // Regex: At least 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char
-  const passwordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  const passwordRegex = /^.{8,}$/;
 
-  const onSubmit = (data) => {
-    // Handle successful validation (e.g., call API)
-    console.log("Form submitted:", data);
-    // reset(); // Optional: reset form after success
+  const onSubmit = async (formData) => {
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) throw new Error("Bạn chưa đăng nhập!");
+
+      const { error: verifyError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: formData.currentPassword,
+      });
+
+      if (verifyError) {
+        throw new Error("Mật khẩu hiện tại không đúng!");
+      }
+
+      const { data, error } = await supabase.auth.updateUser({
+        password: formData.newPassword,
+      });
+
+      if (error) throw error;
+
+      toast.success("Đổi mật khẩu thành công!");
+
+      // 3. Đóng dialog và reset form khi thành công
+      setOpen(false);
+      reset();
+
+      return data;
+    } catch (error) {
+      console.error("Lỗi đổi mật khẩu:", error.message);
+      toast.error(error.message || "Đổi mật khẩu thất bại!"); // Hiển thị lỗi chi tiết hơn nếu có
+    }
   };
 
   return (
-    <Dialog onOpenChange={(open) => !open && reset()}>
+    // 4. Truyền open và onOpenChange vào Dialog
+    <Dialog
+      open={open}
+      onOpenChange={(val) => {
+        setOpen(val);
+        if (!val) reset(); // Reset form khi đóng bằng cách click ra ngoài hoặc nút X
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="bg-white">
           Đổi mật khẩu
@@ -83,8 +123,7 @@ function DialogUpdatePassword() {
                   required: "Vui lòng nhập mật khẩu mới",
                   pattern: {
                     value: passwordRegex,
-                    message:
-                      "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt",
+                    message: "Mật khẩu phải có ít nhất 8 ký tự",
                   },
                 })}
               />
