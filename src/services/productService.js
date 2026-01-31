@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { getReviewsByProductId } from "./reviewService";
 
 export const createProduct = async (newProduct) => {
   try {
@@ -43,7 +44,7 @@ export const getDetailProductById = async (id) => {
   try {
     const { data, error } = await supabase
       .from("products")
-      .select("*, product_images(*), product_variants(*)")
+      .select("*, product_images(*), product_variants(*, inventory(*))")
       .eq("product_id", id)
       .single();
 
@@ -52,22 +53,6 @@ export const getDetailProductById = async (id) => {
     return data;
   } catch (error) {
     console.error("Lỗi khi lấy chi tiết sản phẩm:", error.message);
-    throw error;
-  }
-};
-const getReviewsByProductId = async (productId) => {
-  try {
-    const { data, error } = await supabase
-      .from("reviews")
-      .select("*, profiles(full_name, avatar_url)")
-      .eq("product_id", productId)
-      .order("created_at", { ascending: false }) // Sắp xếp mới nhất lên đầu
-      .limit(5);
-
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    console.error("Lỗi khi lấy đánh giá sản phẩm:", error.message);
     throw error;
   }
 };
@@ -245,6 +230,38 @@ export const getListProductByParams = async (params) => {
     return { data, count };
   } catch (error) {
     console.error("Lỗi lấy danh sách sản phẩm:", error.message);
+    throw error;
+  }
+};
+export const deleteProductById = async (id) => {
+  try {
+    const { data, error } = await supabase
+      .from("products")
+      .delete()
+      .eq("product_id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Lỗi khi xóa sản phẩm:", error.message);
+    throw error;
+  }
+};
+//cái này để lấy sản phẩm để làm cái carolSelf bên trang chủ
+export const getProductsForCarousel = async (gender) => {
+  try {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*, product_images(*)")
+      .eq("gender", gender)
+      .limit(10);
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Lỗi khi lấy sản phẩm nam cho carousel:", error.message);
     throw error;
   }
 };

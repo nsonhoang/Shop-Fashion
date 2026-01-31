@@ -47,7 +47,6 @@ function ReviewDetailItem({ review }) {
         <div className="">
           <p className="text-gray-700 font-medium leading-relaxed">
             {review.comment}
-            size nha mọi người.
           </p>
         </div>
       </div>

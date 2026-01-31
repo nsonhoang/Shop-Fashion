@@ -15,193 +15,277 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getCartsByUserId } from "@/services/cartService";
 import { supabase } from "@/lib/supabase";
 
+import { useNavigate } from "react-router-dom";
+import { getFullAddress } from "@/services/addressService";
+import { toast } from "sonner";
+import DialogConfirmOrder from "./DialogComfirmOrder";
+import { createOrdersAndItems } from "@/services/orderService";
+
 function CartSheet() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const navigate = useNavigate();
 
-  const [cartData, setCartData] = useState({});
-  // const cartItems = cartData?.cart_items || [];
-  const [cartItems, setCartItems] = useState(cartData?.cart_items || []);
+  const [cartData, setCartData] = useState({}); // Cái loz này để làm gì
+  const [cartItems, setCartItems] = useState([]); // Khởi tạo mảng rỗng
+  const [isOpen, setIsOpen] = useState(false);
 
-  // Helper: Lấy mảng items an toàn từ Object trả về
-  // JSON của bạn là: cartData.cart_items
+  // State cho Dialog
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [defaultAddress, setDefaultAddress] = useState(null);
+  const [listAddress, setListAddress] = useState([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("COD");
 
-  // Tính tổng số lượng để hiện chấm đỏ (Badge)
-  // const totalQuantity = cartItems.reduce(
-  //   (acc, item) => acc + (item.quantity || 0),
-  //   0,
-  // );
+  // --- LOGIC REALTIME ĐÃ TỐI ƯU ---
   useEffect(() => {
+    if (!user?.id) return;
+
     let channel = null;
-    let isMounted = true; // 1. Cờ kiểm tra trạng thái component
 
-    const setupCart = async () => {
+    // 1. Hàm lấy dữ liệu mới nhất
+    const fetchLatestCart = async () => {
       try {
-        if (!user?.id) return;
-
         const data = await getCartsByUserId(user.id);
-
-        // 2. Nếu component đã bị hủy (user chuyển trang) thì DỪNG NGAY, không làm gì nữa
-        if (!isMounted) return;
-
-        console.log("Dữ liệu giỏ hàng:", data);
-        setCartData(data);
-        setCartItems(data?.cart_items || []);
-
-        // Setup Realtime
-        if (data && data.cart_id) {
-          const cartId = data.cart_id;
-
-          // Logic tạo kênh giữ nguyên
-          channel = supabase
-            .channel(`realtime-cart-${cartId}`) // Nên thêm ID vào tên kênh cho unique
-            .on(
-              "postgres_changes",
-              {
-                event: "*",
-                schema: "public",
-                table: "cart_items",
-                filter: `cart_id=eq.${cartId}`,
-              },
-              (payload) => {
-                // Chỉ fetch lại nếu component còn sống
-                if (isMounted) {
-                  console.log("Realtime: Có biến động!", payload);
-                  reFetchData();
-                }
-              },
-            )
-            .subscribe();
+        if (data) {
+          console.log("Cart updated:", data);
+          setCartData(data);
+          setCartItems(data.cart_items || []);
+          return data; // Trả về data để dùng cho việc subscribe
         }
       } catch (error) {
-        console.error("Lỗi:", error);
+        console.error("Lỗi fetch cart:", error);
+      }
+      return null;
+    };
+
+    // 2. Hàm khởi tạo (Fetch lần đầu + Đăng ký Realtime)
+    const initCartAndRealtime = async () => {
+      const data = await fetchLatestCart();
+
+      // Chỉ subscribe nếu có cart_id
+      if (data && data.cart_id) {
+        const cartId = data.cart_id;
+
+        // Hủy kênh cũ nếu có (tránh duplicate)
+        if (channel) supabase.removeChannel(channel);
+
+        channel = supabase
+          .channel(`realtime-cart-${cartId}`)
+          .on(
+            "postgres_changes",
+            {
+              event: "*", // Nghe tất cả: INSERT, UPDATE, DELETE
+              schema: "public",
+              table: "cart_items",
+              filter: `cart_id=eq.${cartId}`,
+            },
+            (payload) => {
+              console.log("⚡ Realtime Signal:", payload);
+
+              // Tùy chọn: Hiện thông báo nhỏ khi có thay đổi từ nơi khác
+              if (payload.eventType === "INSERT") {
+                toast.success("Giỏ hàng vừa được cập nhật!");
+              }
+
+              // QUAN TRỌNG: Gọi lại API để lấy data đầy đủ (vì payload realtime thường thiếu thông tin product join)
+              fetchLatestCart();
+            },
+          )
+          .subscribe((status) => {
+            if (status === "SUBSCRIBED") {
+              console.log("✅ Đã kết nối Realtime Cart");
+            }
+          });
       }
     };
 
-    const reFetchData = async () => {
-      if (!user?.id || !isMounted) return; // Check mounted
-      const data = await getCartsByUserId(user.id);
-      if (isMounted && data) setCartData(data); // Check mounted
-    };
+    initCartAndRealtime();
 
-    setupCart();
-
-    // Cleanup
+    // Cleanup khi unmount hoặc user đổi
     return () => {
-      isMounted = false; // 3. Đánh dấu là đã hủy component
       if (channel) {
         console.log("🔌 Ngắt kết nối Realtime");
         supabase.removeChannel(channel);
       }
     };
-  }, [user]);
-  const handleBuyNow = () => {
-    console.log("Thanh toán items:", cartItems);
-  };
+  }, [user]); // Chỉ chạy lại khi user thay đổi
 
-  // SỬA 2: Hàm tính tiền dựa trên JSON bạn gửi
-  // Chỉ lấy giá từ: item -> product_variants -> price_adjustment
   const calculateTotal = () => {
     return cartItems.reduce((total, item) => {
-      // Truy cập vào object product_variants
       const variant = item.product_variants || {};
-
-      // Lấy giá adjustment (10000 trong ví dụ JSON của bạn)
       const price = Number(variant.price_adjustment) || 0;
-
-      // Nhân với số lượng
       return total + price * (item.quantity || 1);
     }, 0);
   };
 
-  const handleDeleteItem = (itemId) => {
+  const handleDeleteItem = async (itemId) => {
+    // Lưu ý: Hàm này nên gọi API xóa trong DB.
+    // Khi API xóa thành công -> DB thay đổi -> Realtime kích hoạt -> Tự động update list
+    // Nhưng để UX nhanh hơn, ta có thể update state tạm thời ở đây (Optimistic UI)
     setCartItems((prevItems) =>
       prevItems.filter((item) => item.cart_item_id !== itemId),
     );
+    // Sau đó nhớ gọi API xóa thật sự ở service (bạn cần thêm logic gọi API ở đây nếu chưa có)
+  };
+
+  const handleBuyNow = async () => {
+    if (!user || cartItems.length === 0) return;
+
+    try {
+      const addresses = await getFullAddress(user.id);
+      const defAddr = addresses?.find((a) => a.is_default) || addresses?.[0];
+      setListAddress(addresses || []);
+
+      if (!defAddr) {
+        toast.error("Vui lòng thêm địa chỉ giao hàng!");
+        // Có thể mở dialog thêm địa chỉ ở đây nếu muốn
+        return;
+      }
+
+      setDefaultAddress(defAddr);
+      setIsConfirmOpen(true);
+    } catch (error) {
+      console.error(error);
+      toast.error("Lỗi lấy thông tin địa chỉ");
+    }
+  };
+
+  const handleFinalConfirm = async () => {
+    setIsProcessing(true);
+    try {
+      const orderData = {
+        address_id: defaultAddress.address_id,
+        total_amount: calculateTotal(),
+      };
+      const cart_items = cartItems.map((item) => ({
+        variant_id: item.variant_id,
+        quantity: item.quantity,
+        price_at_purchase: item.product_variants.price_adjustment,
+      }));
+
+      const payment = {
+        method: paymentMethod,
+        amount: calculateTotal(),
+        status: paymentMethod === "COD" ? "PENDING" : "COMPLETED",
+      };
+      const shipment = {
+        estimated_delivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Estimated delivery in 7 days
+      };
+
+      //phai tao theem casi shipment id nuwax
+      const order = await createOrdersAndItems(
+        orderData,
+        cart_items,
+        user.id,
+        payment,
+        shipment,
+      );
+
+      setIsConfirmOpen(false);
+      setIsOpen(false); // Đóng Sheet
+      toast.success("Đặt hàng thành công!");
+      navigate(`/order-success/${order.order_id}`);
+    } catch (error) {
+      toast.error("Lỗi đặt hàng");
+      console.error(error);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <button className="relative hover:bg-gray-100 p-2 rounded-full transition-colors">
-          <ShoppingCart className="h-6 w-6" />
+    <>
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+        <SheetTrigger asChild>
+          <button className="relative hover:bg-gray-100 p-2 rounded-full transition-colors">
+            <ShoppingCart className="h-6 w-6" />
+            {cartItems.length > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">
+                {cartItems.length}
+              </span>
+            )}
+          </button>
+        </SheetTrigger>
 
-          {/* SỬA 3: Hiển thị số lượng thực tế thay vì số 3 cứng */}
-          {cartData.cart_items && cartData.cart_items.length > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">
-              {cartData.cart_items.length}
-            </span>
-          )}
-        </button>
-      </SheetTrigger>
+        <SheetContent className="flex w-full flex-col sm:max-w-md">
+          <SheetClose className="mb-5" />
+          <SheetHeader className="pb-4">
+            <SheetTitle className="text-lg font-semibold">
+              Giỏ hàng Của Tôi
+            </SheetTitle>
+          </SheetHeader>
 
-      <SheetContent className="flex w-full flex-col sm:max-w-md">
-        <SheetClose className="mb-5" />
-        <SheetHeader className="pb-4">
-          <SheetTitle className="text-lg font-semibold">
-            Giỏ hàng Của Tôi
-          </SheetTitle>
-        </SheetHeader>
-
-        <div className="flex-1 overflow-y-auto py-4">
-          {/* SỬA 4: Check độ dài mảng cartItems */}
-          {cartItems.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center space-y-4 text-center">
-              <div className="rounded-full bg-secondary p-6">
-                <ShoppingBag className="h-10 w-10 text-muted-foreground" />
+          <div className="flex-1 overflow-y-auto py-4">
+            {cartItems.length === 0 ? (
+              <div className="flex h-full flex-col items-center justify-center space-y-4 text-center">
+                <div className="rounded-full bg-secondary p-6">
+                  <ShoppingBag className="h-10 w-10 text-muted-foreground" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-semibold">Giỏ hàng trống</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Bạn chưa thêm sản phẩm nào vào giỏ.
+                  </p>
+                </div>
+                <SheetClose asChild>
+                  <Button variant="outline" className="mt-4">
+                    Tiếp tục mua sắm
+                  </Button>
+                </SheetClose>
               </div>
-              <div className="space-y-1">
-                <h3 className="font-semibold">Giỏ hàng trống</h3>
-                <p className="text-sm text-muted-foreground">
-                  Bạn chưa thêm sản phẩm nào vào giỏ.
-                </p>
-              </div>
-              <SheetClose asChild>
-                <Button variant="outline" className="mt-4">
-                  Tiếp tục mua sắm
-                </Button>
-              </SheetClose>
-            </div>
-          ) : (
-            <div className="flex flex-col h-full justify-between">
-              <div className="flex flex-col gap-4">
-                {/* SỬA 5: Map qua cartItems và dùng cart_item_id làm key */}
-                {cartItems.map((item) => (
-                  <CartSheetItem
-                    key={item.cart_item_id}
-                    cartItem={item}
-                    handleDelete={handleDeleteItem}
-                  />
-                ))}
-              </div>
-
-              <div className="border-t p-4 mt-auto shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-                <div className="flex flex-row items-center justify-between mb-4">
-                  <span className="font-semibold flex items-baseline gap-1">
-                    Tổng cộng
-                    <span className="text-sm font-normal text-muted-foreground">
-                      ({cartItems.length} sản phẩm)
-                    </span>
-                  </span>
-
-                  <span className="font-bold text-lg">
-                    {formatMoney(calculateTotal())}
-                  </span>
+            ) : (
+              <div className="flex flex-col h-full justify-between">
+                <div className="flex flex-col gap-4">
+                  {cartItems.map((item) => (
+                    <CartSheetItem
+                      key={item.cart_item_id}
+                      cartItem={item}
+                      handleDelete={handleDeleteItem}
+                    />
+                  ))}
                 </div>
 
-                <SheetClose asChild>
+                <div className="border-t p-4 mt-auto shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] bg-white">
+                  <div className="flex flex-row items-center justify-between mb-4">
+                    <span className="font-semibold flex items-baseline gap-1">
+                      Tổng cộng
+                      <span className="text-sm font-normal text-muted-foreground">
+                        ({cartItems.length} sản phẩm)
+                      </span>
+                    </span>
+
+                    <span className="font-bold text-lg text-blue-600">
+                      {formatMoney(calculateTotal())}
+                    </span>
+                  </div>
+
                   <Button
                     className="w-full h-12 text-base font-semibold shadow-md"
                     onClick={handleBuyNow}
                   >
-                    Thanh toán ngay
+                    Đặt hàng
                   </Button>
-                </SheetClose>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-      </SheetContent>
-    </Sheet>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <DialogConfirmOrder
+        open={isConfirmOpen}
+        listAddress={listAddress}
+        onOpenChange={setIsConfirmOpen}
+        onConfirm={handleFinalConfirm}
+        isLoading={isProcessing}
+        address={defaultAddress}
+        changeDefaultAddress={setDefaultAddress}
+        totalAmount={calculateTotal()}
+        paymentMethod={paymentMethod}
+        onPaymentMethodChange={setPaymentMethod}
+        phoneNumber={profile?.phone_number || ""}
+      />
+    </>
   );
 }
 

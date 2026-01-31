@@ -1,23 +1,29 @@
 import { useEffect, useState } from "react";
 import ListOrderHistory from "./components/ListOrderHistory";
-import { mockOrdersStrict } from "@/constants/mockValue";
+
+import { useAuth } from "@/contexts/AuthContext";
+import { getOrderByUserId } from "@/services/orderService";
+import { toast } from "sonner";
 
 function OrderHistory() {
+  const { user } = useAuth();
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
     // Giả lập gọi API để lấy dữ liệu đơn hàng
     const fetchOrders = async () => {
-      // Thay thế bằng API thực tế
-      const response = await new Promise((resolve) => {
-        const orders = mockOrdersStrict;
-        setTimeout(() => resolve(orders), 1000);
-      });
-      setOrders(response);
+      try {
+        const orders = await getOrderByUserId(user.id);
+        setOrders(orders);
+      } catch (error) {
+        console.error("Failed to fetch orders:", error);
+        toast.error("Không thể tải lịch sử đơn hàng.");
+      }
     };
 
     fetchOrders();
-  }, []);
+  }, [user.id]);
+  console.log("orders history:", orders);
   return (
     <div>
       <div className="title mt-10">

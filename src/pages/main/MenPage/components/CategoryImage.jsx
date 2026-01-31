@@ -13,32 +13,32 @@ const category = [
   {
     imageSrc: img1, // Dùng biến đã import
     title: "Áo Sơ Mi",
-    link: "#",
+    link: "/products?gender=men&category=shirt",
   },
   {
     imageSrc: img2,
     title: "Đồ Jeans",
-    link: "#",
+    link: "/products?gender=men&category=jeans",
   },
   {
     imageSrc: img3,
     title: "Áo Thun",
-    link: "#",
+    link: "/products?gender=men&category=t-shirt",
   },
   {
     imageSrc: img4,
     title: "Quần",
-    link: "#",
+    link: "/products?gender=men&category=pants",
   },
   {
     imageSrc: img5,
     title: "Quần",
-    link: "#",
+    link: "/products?gender=men&category=shorts",
   },
   {
     imageSrc: img6,
     title: "Áo khoác",
-    link: "#",
+    link: "/products?gender=men&category=jacket",
   },
 ];
 

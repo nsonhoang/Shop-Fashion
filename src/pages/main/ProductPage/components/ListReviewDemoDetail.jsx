@@ -1,13 +1,13 @@
 import ReviewDetailItem from "./ReviewDeatailItem";
 
-function ListReviewDetail({ reviews }) {
+function ListReviewDemoDetail({ reviews }) {
   return (
     <div className="">
-      {reviews.map((review) => (
+      {reviews?.slice(0, 5).map((review) => (
         <ReviewDetailItem key={review.review_id} review={review} />
       ))}
     </div>
   );
 }
 
-export default ListReviewDetail;
+export default ListReviewDemoDetail;
