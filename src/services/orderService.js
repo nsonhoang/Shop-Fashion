@@ -254,3 +254,20 @@ export const getOrdersByStatus = async (
     throw error;
   }
 };
+export const updatePaymentStatus = async (
+  orderId,
+
+  newStatus,
+) => {
+  const { data, error } = await supabase
+    .from("payments")
+    .update({
+      status: newStatus, // Chỉ đổi status tiền
+      updated_at: new Date().toISOString(), // Lưu thời gian cập nhật
+    })
+    .eq("order_id", orderId)
+    .select();
+
+  if (error) throw error;
+  return data;
+};

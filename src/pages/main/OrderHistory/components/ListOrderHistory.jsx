@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { updateOrderStatus } from "@/services/orderService";
 
-// --- CONFIG TRẠNG THÁI ---
+// --- CONFIG TRẠNG THÁI (Giữ nguyên) ---
 const getStatusConfig = (status) => {
   switch (status) {
     case "PENDING":
@@ -75,6 +75,7 @@ const ListOrderHistory = ({ orders }) => {
     setOrderList(orders || []);
   }, [orders]);
 
+  // --- XỬ LÝ HỦY ĐƠN (Giữ nguyên) ---
   const handleCancelClick = async (orderId) => {
     if (!window.confirm("Bạn có chắc chắn muốn hủy đơn hàng này?")) return;
     setLoadingId(orderId);
@@ -91,6 +92,28 @@ const ListOrderHistory = ({ orders }) => {
     } catch (error) {
       console.error(error);
       toast.error("Lỗi khi hủy đơn hàng");
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
+  // --- MỚI: XỬ LÝ TRẢ HÀNG ---
+  const handleReturnClick = async (orderId) => {
+    if (!window.confirm("Bạn có muốn gửi yêu cầu trả hàng/hoàn tiền?")) return;
+    setLoadingId(orderId);
+    try {
+      // Gọi API update trạng thái sang RETURNED
+      await updateOrderStatus(orderId, "RETURNED");
+
+      setOrderList((prevOrders) =>
+        prevOrders.map((order) =>
+          order.order_id === orderId ? { ...order, status: "RETURNED" } : order,
+        ),
+      );
+      toast.success("Đã gửi yêu cầu trả hàng");
+    } catch (error) {
+      console.error(error);
+      toast.error("Lỗi khi gửi yêu cầu trả hàng");
     } finally {
       setLoadingId(null);
     }
@@ -121,10 +144,8 @@ const ListOrderHistory = ({ orders }) => {
           order.payments?.status === "SUCCESS" ||
           order.payments?.status === "COMPLETED";
 
-        // 1. Lấy dữ liệu shipment an toàn
         const shipment = order.shipments || {};
 
-        // 2. Format ngày giao dự kiến
         const estimatedDate = shipment.estimated_delivery
           ? new Date(shipment.estimated_delivery).toLocaleDateString("vi-VN", {
               day: "2-digit",
@@ -133,10 +154,11 @@ const ListOrderHistory = ({ orders }) => {
             })
           : "Đang cập nhật";
 
-        // 3. Lấy mã vận đơn
         const trackingNumber = shipment.tracking_number;
 
+        // Điều kiện hiển thị nút
         const canCancel = order.status === "PENDING";
+        const canReturn = order.status === "DELIVERED"; // MỚI: Điều kiện trả hàng
 
         return (
           <div
@@ -169,9 +191,9 @@ const ListOrderHistory = ({ orders }) => {
             {/* Body */}
             <ItemOrderHistory items={order.order_items} />
 
-            {/* Info Section */}
+            {/* Info Section (Giữ nguyên) */}
             <div className="px-4 py-4 grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-100 bg-gray-50/50">
-              {/* Cột 1: Địa chỉ & Người nhận */}
+              {/* ... (Phần hiển thị địa chỉ giữ nguyên) ... */}
               <div className="space-y-3 text-sm">
                 <div className="flex items-start gap-2">
                   <MapPin className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
@@ -197,9 +219,8 @@ const ListOrderHistory = ({ orders }) => {
                 </div>
               </div>
 
-              {/* Cột 2: Thanh toán & Vận chuyển */}
+              {/* ... (Phần hiển thị thanh toán giữ nguyên) ... */}
               <div className="space-y-3 text-sm md:text-right">
-                {/* Thông tin thanh toán */}
                 <div className="flex md:justify-end items-start gap-2">
                   <div className="md:order-2">
                     <CreditCard className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
@@ -217,22 +238,18 @@ const ListOrderHistory = ({ orders }) => {
                   </div>
                 </div>
 
-                {/* Thông tin vận chuyển */}
                 <div className="flex md:justify-end items-start gap-2 pt-2 border-t border-gray-200 md:border-0 md:pt-0">
                   <div className="md:order-2">
                     <Truck className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">Vận chuyển</p>
-
                     <div className="text-gray-600 flex items-center md:justify-end gap-1">
                       <span className="text-xs text-gray-400">
                         Dự kiến giao:
                       </span>
                       <span>{estimatedDate}</span>
                     </div>
-
-                    {/* Chỉ hiện Tracking nếu có dữ liệu */}
                     {trackingNumber && (
                       <div className="mt-1">
                         <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-100 font-mono inline-block">
@@ -247,7 +264,8 @@ const ListOrderHistory = ({ orders }) => {
 
             {/* Footer */}
             <div className="px-4 py-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
-              <div className="w-full sm:w-auto">
+              <div className="w-full sm:w-auto flex gap-2">
+                {/* NÚT HỦY ĐƠN */}
                 {canCancel && (
                   <Button
                     variant="outline"
@@ -263,6 +281,28 @@ const ListOrderHistory = ({ orders }) => {
                       </>
                     ) : (
                       "Hủy đơn hàng"
+                    )}
+                  </Button>
+                )}
+
+                {/* NÚT TRẢ HÀNG (MỚI) */}
+                {canReturn && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full sm:w-auto text-orange-600 border-orange-200 hover:bg-orange-50 hover:text-orange-700"
+                    onClick={() => handleReturnClick(order.order_id)}
+                    disabled={loadingId === order.order_id}
+                  >
+                    {loadingId === order.order_id ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Đang
+                        xử lý...
+                      </>
+                    ) : (
+                      <>
+                        <RotateCcw className="mr-2 h-4 w-4" /> Trả hàng
+                      </>
                     )}
                   </Button>
                 )}
