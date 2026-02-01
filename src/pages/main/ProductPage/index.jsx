@@ -228,6 +228,11 @@ const ProductPage = () => {
 
   // thêm vào giỏ hàng
   const handleAddToCart = async () => {
+    //kiểm tra xem đăng nhập chưa
+    if (!user) {
+      toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.");
+      return;
+    }
     // 1. Kiểm tra đã chọn variant chưa
     if (!selectedVariant) {
       setShowAlertError(true);
@@ -264,6 +269,10 @@ const ProductPage = () => {
   }
   //nhấn vào nút viết đánh giá
   const handleCreateReview = async (data) => {
+    if (!user) {
+      toast.error("Vui lòng đăng nhập để viết đánh giá.");
+      return;
+    }
     const reviews = {
       ...data,
       user_id: user.id,

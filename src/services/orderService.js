@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { deleteCartItemByUserId } from "./cartService";
-import { createPaymentIntent } from "./paymentService,js";
+import { createPaymentIntent } from "./paymentService";
 import { createShipment } from "./shipmentService";
 
 export const getOrders = async () => {
@@ -253,4 +253,21 @@ export const getOrdersByStatus = async (
     console.error("Lỗi lấy đơn hàng:", error);
     throw error;
   }
+};
+export const updatePaymentStatus = async (
+  orderId,
+
+  newStatus,
+) => {
+  const { data, error } = await supabase
+    .from("payments")
+    .update({
+      status: newStatus, // Chỉ đổi status tiền
+      updated_at: new Date().toISOString(), // Lưu thời gian cập nhật
+    })
+    .eq("order_id", orderId)
+    .select();
+
+  if (error) throw error;
+  return data;
 };

@@ -25,6 +25,7 @@ const OrderSuccessPage = React.lazy(() => import("@/pages/main/OrderSuccess"));
 const EmailConfirmationPage = React.lazy(
   () => import("@/pages/main/EmailConfirmationPage"),
 );
+const PaymentPage = React.lazy(() => import("@/pages/main/PaymentPage"));
 const ErrorPage = React.lazy(() => import("@/pages/main/Error"));
 const Dashboard = React.lazy(() => import("@/pages/admin/Dashboard"));
 const ProductAdminPage = React.lazy(
@@ -99,6 +100,10 @@ const router = createBrowserRouter([
       {
         path: "order-success/:orderId",
         element: <OrderSuccessPage />,
+      },
+      {
+        path: "payment/:paymentId",
+        element: <PaymentPage />,
       },
     ],
     // --- KẾT THÚC: Route trung gian ---
