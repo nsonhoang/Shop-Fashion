@@ -18,6 +18,7 @@ import { formatMoney } from "@/utils/formatMoney";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { updateOrderStatus } from "@/services/orderService";
+import { useNavigate } from "react-router-dom";
 
 // --- CONFIG TRẠNG THÁI (Giữ nguyên) ---
 const getStatusConfig = (status) => {
@@ -70,6 +71,7 @@ const getStatusConfig = (status) => {
 const ListOrderHistory = ({ orders }) => {
   const [orderList, setOrderList] = useState(orders || []);
   const [loadingId, setLoadingId] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setOrderList(orders || []);
@@ -118,7 +120,11 @@ const ListOrderHistory = ({ orders }) => {
       setLoadingId(null);
     }
   };
-
+  //chuyển qua trang thanh toán
+  const handlePayClick = (payment_id) => {
+    console.log("Thanh toán cho đơn hàng:", payment_id);
+    navigate(`/payment/${payment_id}`);
+  };
   return (
     <div className="w-full mx-auto p-4 space-y-6 font-sans">
       {orderList.map((order) => {
@@ -159,6 +165,8 @@ const ListOrderHistory = ({ orders }) => {
         // Điều kiện hiển thị nút
         const canCancel = order.status === "PENDING";
         const canReturn = order.status === "DELIVERED"; // MỚI: Điều kiện trả hàng
+        // hiện nút thanh toán
+        const canPay = order.payments?.status === "PENDING";
 
         return (
           <div
@@ -302,6 +310,26 @@ const ListOrderHistory = ({ orders }) => {
                     ) : (
                       <>
                         <RotateCcw className="mr-2 h-4 w-4" /> Trả hàng
+                      </>
+                    )}
+                  </Button>
+                )}
+                {canPay && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full sm:w-auto text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                    onClick={() => handlePayClick(order.payments.payment_id)}
+                    disabled={loadingId === order.order_id}
+                  >
+                    {loadingId === order.order_id ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Đang
+                        xử lý...
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard className="mr-2 h-4 w-4" /> Thanh toán
                       </>
                     )}
                   </Button>

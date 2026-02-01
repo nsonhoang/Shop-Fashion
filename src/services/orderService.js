@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { deleteCartItemByUserId } from "./cartService";
-import { createPaymentIntent } from "./paymentService,js";
+import { createPaymentIntent } from "./paymentService";
 import { createShipment } from "./shipmentService";
 
 export const getOrders = async () => {

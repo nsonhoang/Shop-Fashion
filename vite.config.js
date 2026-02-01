@@ -23,4 +23,14 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"),
     },
   },
+  server: {
+    proxy: {
+      "/api-sepay": {
+        target: "https://my.sepay.vn/userapi",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api-sepay/, ""),
+        secure: false,
+      },
+    },
+  },
 });

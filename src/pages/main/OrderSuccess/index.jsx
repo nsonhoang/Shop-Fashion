@@ -65,9 +65,10 @@ function OrderSuccessPage() {
               {orderId || "UNKNOWN"}
             </span>
           </div>
-          {/* <div className="mt-3 text-xs text-gray-400">
-            Một email xác nhận đã được gửi đến hộp thư của bạn.
-          </div> */}
+          <div className="mt-3 text-xs text-gray-400">
+            Vui lòng kiểm tra lịch sử đơn hàng để có thể thanh toán hoặc hủy đơn
+            hàng.
+          </div>
         </div>
 
         {/* Các nút hành động */}

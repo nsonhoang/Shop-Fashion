@@ -166,7 +166,10 @@ function CartSheet() {
       const payment = {
         method: paymentMethod,
         amount: calculateTotal(),
-        status: paymentMethod === "COD" ? "PENDING" : "COMPLETED",
+        status:
+          paymentMethod === "COD" || paymentMethod === "BANKING"
+            ? "PENDING"
+            : "COMPLETED",
       };
       const shipment = {
         estimated_delivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Estimated delivery in 7 days
