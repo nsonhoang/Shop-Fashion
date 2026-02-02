@@ -230,7 +230,7 @@ function Header() {
                 onClick={() => setIsSearchOpen(false)}
                 className="text-sm font-medium text-gray-500 hover:text-black transition-colors"
               >
-                Cancel
+                Hủy
               </button>
             </form>
           </div>
@@ -307,11 +307,12 @@ function Header() {
               </Link>
             </div>
           ) : (
-            <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-              <button className="w-full bg-black text-white font-medium py-3 rounded-md">
-                Log In
-              </button>
-            </Link>
+            <button
+              className="w-full bg-black text-white font-medium py-3 rounded-md"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Đăng nhập
+            </button>
           )}
         </div>
       </div>

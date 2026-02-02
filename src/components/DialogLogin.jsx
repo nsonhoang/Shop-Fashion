@@ -86,7 +86,7 @@ function DialogLogin() {
         alert("Đăng nhập thành công!");
       } catch (error) {
         setError(
-          "Đăng nhập không thành công. Vui lòng thử lại. " + error.message
+          "Đăng nhập không thành công. Vui lòng thử lại. " + error.message,
         );
         console.log(error);
         alert(error.message);
@@ -98,7 +98,7 @@ function DialogLogin() {
     // Giả lập call API
     console.log(
       isLoginView ? "Đang Đăng nhập..." : "Đang Đăng ký...",
-      formData
+      formData,
     );
   };
 
@@ -112,8 +112,8 @@ function DialogLogin() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <button className="bg-gray-900 text-white text-sm font-medium px-5 py-2 rounded-md hover:bg-gray-800 transition-colors w-full md:w-auto">
-          Log In
+        <button className="bg-gray-900 text-white text-sm font-medium px-5 py-2 rounded-md hover:bg-gray-800 transition-colors w-full md:w-auto ">
+          Đăng nhập
         </button>
       </DialogTrigger>
 
