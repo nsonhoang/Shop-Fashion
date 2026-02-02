@@ -9,6 +9,7 @@ import {
   deleteVariantById,
   updateVariantById,
 } from "@/services/productService";
+import { toast } from "sonner";
 
 export default function VariantTable({ productId, variants }) {
   const [openCreate, setOpenCreate] = useState(false); //cái này hiện dialog thêm biến thể
@@ -23,10 +24,10 @@ export default function VariantTable({ productId, variants }) {
       console.log("Add variant", newVariant);
       const result = await createVariant(newVariant);
       setVariantList([...variantList, result]);
-      alert("Thêm biến thể thành công!");
+      toast.success("Thêm biến thể thành công!");
     } catch (error) {
       console.error("Lỗi khi thêm biến thể:", error.message);
-      alert("Lỗi khi thêm biến thể. Vui lòng thử lại.");
+      toast.error("Lỗi khi thêm biến thể. Vui lòng thử lại.");
     } finally {
       setLoading(false);
       setOpenCreate(false);
@@ -40,13 +41,13 @@ export default function VariantTable({ productId, variants }) {
       const updateResult = await updateVariantById(variant.variant_id, variant);
       setVariantList(
         variantList.map((v) =>
-          v.variant_id === variant.variant_id ? updateResult : v
-        )
+          v.variant_id === variant.variant_id ? updateResult : v,
+        ),
       );
-      alert("Cập nhật biến thể thành công!");
+      toast.success("Cập nhật biến thể thành công!");
     } catch (error) {
       console.error("Lỗi khi cập nhật biến thể:", error.message);
-      alert("Lỗi khi cập nhật biến thể. Vui lòng thử lại.");
+      toast.error("Lỗi khi cập nhật biến thể. Vui lòng thử lại.");
     } finally {
       setLoading(false);
       setOpenEdit(null);
@@ -58,10 +59,10 @@ export default function VariantTable({ productId, variants }) {
       setLoading(true);
       await deleteVariantById(variantId);
       setVariantList(variantList.filter((v) => v.variant_id !== variantId));
-      alert("Xóa biến thể thành công!");
+      toast.success("Xóa biến thể thành công!");
     } catch (error) {
       console.error("Lỗi khi xóa biến thể:", error.message);
-      alert("Lỗi khi xóa biến thể. Vui lòng thử lại.");
+      toast.error("Lỗi khi xóa biến thể. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }

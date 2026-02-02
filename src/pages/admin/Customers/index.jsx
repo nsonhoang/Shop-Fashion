@@ -33,6 +33,7 @@ import {
 import { CustomerDetailDialog } from "./components/DialogDetail";
 import { formatMoney } from "@/utils/formatMoney";
 import { getCustomers, updateRoleById } from "@/services/customerService";
+import { toast } from "sonner";
 
 // --- HELPERS ---
 
@@ -109,7 +110,7 @@ const CustomersAdminPage = () => {
       console.log("Cập nhật vai trò thành công");
     } catch (error) {
       console.error("Lỗi khi cập nhật vai trò:", error.message);
-      alert("Cập nhật thất bại!");
+      toast.error("Cập nhật thất bại!");
     }
   };
 

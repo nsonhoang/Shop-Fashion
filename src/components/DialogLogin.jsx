@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 function DialogLogin() {
   const [isOpen, setIsOpen] = useState(false);
@@ -83,13 +84,13 @@ function DialogLogin() {
       try {
         setIsLoading(true);
         await signIn(formData.email, formData.password);
-        alert("Đăng nhập thành công!");
+        toast.success("Đăng nhập thành công!");
       } catch (error) {
         setError(
           "Đăng nhập không thành công. Vui lòng thử lại. " + error.message,
         );
         console.log(error);
-        alert(error.message);
+        toast.error("Đăng nhập không thành công. Vui lòng thử lại.");
       } finally {
         setIsLoading(false);
       }
