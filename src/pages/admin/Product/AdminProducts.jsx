@@ -87,6 +87,10 @@ export default function AdminProducts() {
     }
   };
 
+  const handleDelete = (productId) => {
+    setProducts(prev => prev.filter(p => p.id !== productId));
+  }
+
   // =========================
   // FILTER LOGIC (CLIENT-SIDE TRÊN TRANG HIỆN TẠI)
   // Lưu ý: Nếu muốn tìm kiếm toàn bộ database, bạn cần đẩy filters xuống API getProducts
@@ -144,9 +148,12 @@ export default function AdminProducts() {
   }
 
   return (
-    <>
-      <AdminHeader title="Product Management" />
+  <>
+    <AdminHeader title="Product Management" />
 
+<<<<<<< HEAD
+    <div className="p-6 space-y-6">
+=======
       <div className="p-6 space-y-6">
         {alertState && (
           <CustomAlert
@@ -157,19 +164,18 @@ export default function AdminProducts() {
             {alertState.message}
           </CustomAlert>
         )}
+>>>>>>> e969dbc54a1f0a48e05b12a4c9f2b0d339983900
 
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Product Management</h1>
-          <Button onClick={() => setOpenForm(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Product
-          </Button>
-        </div>
-
-        {/* Filter Bar */}
+      {/* Header + Filter + Add button */}
+      <div className="flex justify-between items-center">
         <FilterBar filters={filters} setFilters={setFilters} />
 
+<<<<<<< HEAD
+        <Button onClick={() => setOpenForm(true)}>
+          <Plus className="w-4 h-4 mr-2" />
+          Add Product
+        </Button>
+=======
         {/* Product Table */}
         <Card>
           <CardContent className="p-0">
@@ -203,7 +209,29 @@ export default function AdminProducts() {
             onSubmit={handleCreate}
           />
         )}
+>>>>>>> e969dbc54a1f0a48e05b12a4c9f2b0d339983900
       </div>
-    </>
-  );
+
+      {/* Product Table */}
+      <Card>
+        <CardContent className="p-0">
+          <ProductTable
+            products={filteredProducts}
+            onManage={setSelectedProduct}
+            onDelete={handleDelete}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Create Form */}
+      {openForm && (
+        <ProductForm
+          onClose={() => setOpenForm(false)}
+          onSubmit={handleCreate}
+        />
+      )}
+    </div>
+  </>
+);
+
 }
