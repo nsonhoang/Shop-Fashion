@@ -97,7 +97,7 @@ export default function AdminProducts() {
     // Search
     if (filters.search) {
       result = result.filter(
-        (p) => p.name?.toLowerCase().includes(filters.search.toLowerCase()) // Thêm ?. để tránh lỗi nếu name null
+        (p) => p.name?.toLowerCase().includes(filters.search.toLowerCase()), // Thêm ?. để tránh lỗi nếu name null
       );
     }
 
@@ -145,7 +145,7 @@ export default function AdminProducts() {
 
   return (
     <>
-      <AdminHeader title="Product Management" />
+      <AdminHeader title="Quản lí sản phẩm" />
 
       <div className="p-6 space-y-6">
         {alertState && (
@@ -159,11 +159,10 @@ export default function AdminProducts() {
         )}
 
         {/* Header */}
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Product Management</h1>
+        <div className="flex justify-end items-center">
           <Button onClick={() => setOpenForm(true)}>
             <Plus className="w-4 h-4 mr-2" />
-            Add Product
+            Thêm sản phẩm
           </Button>
         </div>
 
