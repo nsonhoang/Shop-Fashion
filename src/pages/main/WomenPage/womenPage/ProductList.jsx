@@ -63,16 +63,17 @@ function ProductList() {
           >
             <ProductItem
               image={
-                product.product_images.map((img) =>
-                  img.is_thumbnail ? img.image_url : null,
-                )[0]
+                (
+                  product.product_images?.find((img) => img.is_thumbnail) ||
+                  product.product_images?.[0]
+                )?.image_url
               }
               name={product.name}
               price={product.base_price}
               color={
-                product.product_images.map((img) =>
+                product.product_images.find((img) =>
                   img.is_thumbnail ? img.color : null,
-                )[0]
+                )?.color || product.product_images?.[0]?.color
               }
               onClick={() => console.log("Product clicked:", product.id)}
             />
