@@ -15,6 +15,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useEffect, useState } from "react"; // 1. Import useEffect
 import { createAddress, updateAddress } from "@/services/addressService";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 // Nhớ nhận prop isDefault ở đây
 function DialogUpdateAdd({ isDefault, address, isEdit, children, onSuccess }) {
@@ -57,7 +58,7 @@ function DialogUpdateAdd({ isDefault, address, isEdit, children, onSuccess }) {
         }
       } catch (error) {
         console.error("Error updating address:", error);
-        alert("Có lỗi xảy ra khi cập nhật địa chỉ.");
+        toast.error("Có lỗi xảy ra khi cập nhật địa chỉ.");
       } finally {
         setOpen(false);
       }
@@ -69,7 +70,7 @@ function DialogUpdateAdd({ isDefault, address, isEdit, children, onSuccess }) {
         }
       } catch (error) {
         console.error("Error creating address:", error);
-        alert("Có lỗi xảy ra khi thêm địa chỉ.");
+        toast.error("Có lỗi xảy ra khi thêm địa chỉ.");
       } finally {
         setOpen(false);
       }

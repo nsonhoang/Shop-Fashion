@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import DialogUpdateAdd from "./DialogUpdateAdd";
 import { useAuth } from "@/contexts/AuthContext";
 import { deleteAddress, getFullAddress } from "@/services/addressService";
+import { toast } from "sonner";
 
 // ĐÃ XÓA IMPORT SONNER Ở ĐÂY
 
@@ -88,10 +89,10 @@ function DialogShowAddress() {
       setSelectedId(null);
 
       // Dùng alert thay vì toast
-      alert("Đã xóa địa chỉ thành công!");
+      toast.success("Đã xóa địa chỉ thành công!");
     } catch (error) {
       console.error("Lỗi khi xóa:", error);
-      alert("Lỗi: Không thể xóa địa chỉ này.");
+      toast.error("Lỗi: Không thể xóa địa chỉ này.");
     }
   };
 

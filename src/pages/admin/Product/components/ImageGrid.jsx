@@ -7,6 +7,7 @@ import {
   createImageProduct,
   deleteImageProductById,
 } from "@/services/productService";
+import { toast } from "sonner";
 
 export default function ImageGrid({ productId, images }) {
   const [openAdd, setOpenAdd] = useState(false);
@@ -18,7 +19,7 @@ export default function ImageGrid({ productId, images }) {
       await deleteImageProductById(id);
       setListImages(ListImages.filter((img) => img.image_id !== id));
     } catch (error) {
-      alert("Lỗi xóa ảnh. Vui lòng thử lại.");
+      toast.error("Lỗi xóa ảnh. Vui lòng thử lại.");
       console.error("Lỗi xóa ảnh:", error);
     }
   };
@@ -63,7 +64,7 @@ export default function ImageGrid({ productId, images }) {
       // Update UI
       setListImages((prev) => [...prev, newData]);
     } catch (error) {
-      alert("Lỗi thêm ảnh. Vui lòng thử lại.");
+      toast.error("Lỗi thêm ảnh. Vui lòng thử lại.");
       console.error("Lỗi thêm ảnh:", error);
     }
   };

@@ -31,6 +31,7 @@ import {
   getInventories,
   updateInventoryById,
 } from "@/services/inventoryService";
+import { toast } from "sonner";
 
 // --- LOGIC HELPER ---
 const getStockStatus = (available, reserved) => {
@@ -183,7 +184,7 @@ const InventoryAdminPage = () => {
       setOpenDialog(false); // Đóng Dialog khi thành công
     } catch (error) {
       console.error("Lỗi khi lưu dữ liệu", error.message);
-      alert(
+      toast.error(
         "Có lỗi xảy ra khi lưu dữ liệu kho hàng, có thể sản phẩm đã được thêm nên nên cập nhật số lượng",
       );
     }

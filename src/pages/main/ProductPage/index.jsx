@@ -21,7 +21,6 @@ import DialogCreateReview from "./components/DialogCreateReview";
 import { createProductReview } from "@/services/reviewService";
 import ListReviewDemoDetail from "./components/ListReviewDemoDetail";
 import ReviewsListDialog from "./components/ReviewsListDialog";
-import { set } from "react-hook-form";
 
 // Dữ liệu giả lập relatedProducts
 export const relatedProducts = [
